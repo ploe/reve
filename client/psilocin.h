@@ -12,6 +12,7 @@ typedef int ps_ExitCode;
 enum {
 	ps_EOK = 0,
 	_ps_ERRORS = 900,
+	ps_EOALLOC,
 	ps_EOCREW_ALLOC,
 	ps_EOSTAGE_INIT,
 	_ps_ENDOFERRORS
