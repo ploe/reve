@@ -2,9 +2,12 @@
 #define _PSILOCIN_MAIN_H
 
 // Their libs
-#include <SDL2/SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#include <curl/curl.h>
+#include <murp.h>
+#include <SDL2/SDL.h>
 
 
 /*	app ExitCodes	*/
@@ -29,6 +32,10 @@ enum {
 
 
 void ps_Panic(int i, char *prompt);
+char *ps_GetHTTP(char *url);
+
+mp_Atomizer ps_PrintAtom(mp_Atom atom, void *p);
+mp_Atomizer ps_CountElems(mp_Atom atom, void *probe);
 
 //Our libs
 #include "Crew.h"
