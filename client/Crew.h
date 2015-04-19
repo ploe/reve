@@ -17,6 +17,7 @@ enum {
 	The Crew are a linked list of actions we need to execute each and
 	every frame.	*/ 
 typedef struct ps_Crew {
+	char *tag;
 	void *attr;
 	void *type, *update, *destroy;
 	ps_CrewStatus status;	
@@ -28,6 +29,7 @@ typedef ps_CrewStatus (*ps_Updater)(ps_Crew *);
 
 ps_Crew *ps_CrewNew(ps_Updater type);
 ps_Bool ps_CrewRoll();
+void ps_CrewRollCall();
 ps_CrewStatus ps_CrewCall(ps_Crew *c, ps_Updater func);
 
 #endif

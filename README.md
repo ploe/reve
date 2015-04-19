@@ -6,9 +6,25 @@
 
 A Communal Game Dev Platform - **WIP**
 
-The client is written in C and SDL 2.0, with murp and libcurl.
+The client is written in C and SDL 2.0, with [murp](https://github.com/ploe/murp) and libcurl.
 
 The server is written in Ruby, with Sinatra.
+
+## Compile Client
+
+Point to your instance of libmurp. Mine is in my home dir. Make sure you have libcurl and SDL 2 installed.
+
+Mac OS X
+
+```bash
+gcc-mp-4.9 *.c -o psi `pkg-config sdl2 --cflags --libs` `curl-config --cflags` -I/Users/myke/libmurp-osx -L/Users/myke/libmurp-osx -lmurp -lSDL2 -lcurl
+```
+
+Linux - Debian 64-bit
+
+```bash
+ cc *.c -o psi -g `pkg-config sdl2 libcurl --cflags --libs` -I/home/myke/libmurp-debian64 -L/home/myke/libmurp-debian64 -lmurp
+```
 
 ## License (Simplified BSD - 2 Clause)
 
