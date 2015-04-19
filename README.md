@@ -1,4 +1,16 @@
-Communal Game Dev Platform - **WIP**
+# psilocin
+
+## What is psilocin?
+
+![psilocin](https://ploe.co.uk/psilocin-logo.gif)
+
+A Communal Game Dev Platform - **WIP**
+
+The client is written in C and SDL 2.0, with murp and libcurl.
+
+The server is written in Ruby, with Sinatra.
+
+## License (Simplified BSD - 2 Clause)
 
 ```
 Copyright (c) 2015, Myke Atkinson
