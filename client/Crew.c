@@ -18,13 +18,11 @@ ps_Crew *ps_CrewNew(ps_Updater type) {
 		}
 	}
 	else ps_Panic(ps_EOCREW_ALLOC, "ps_CrewNew: calloc failed to return anything. Out of memory?");
-	printf("Allocated %d\n", c);
 	return c;
 }
 
 /* delete the Crew member	from the stack*/
 void ps_CrewFree(ps_Crew *c) {
-	printf("Freeing %d", c);
 	ps_Crew *prev = c->prev, *next = c->next;
 	if (c->next) c->next->prev = c->prev;
 
@@ -73,7 +71,8 @@ ps_Bool ps_CrewRoll() {
 	return ps_YES;
 }
 
-/* shows the Crew members currently in the stack in stderr */
+/* 	shows the Crew members currently in the stack in stderr
+ 	now outputs JSON so we can do more with it!	*/
 void ps_CrewRollCall() {
 	const char *ps_CrewStatusStr[] = {
 		"LIVE",
@@ -85,17 +84,50 @@ void ps_CrewRollCall() {
 
 	ps_Crew *c;
 	int i = 0;
+	
 	if (top != NULL) {
-		fprintf(stderr, "run\t\ttype\t\t\ttag\t\tstatus\n");
-		fputs("---\t\t----\t\t\t---\t\t------\n", stderr);
+		fputs("[", stderr);
 		for (c = top; c != NULL; c = c->next) {
-			fprintf(stderr, "%d\t\t%p\t\t%s\t\t%s\n", i++, c->type, c->tag, ps_CrewStatusStr[c->status]);
+			fprintf(stderr, "{\"run\":\"%d\",\"type\":\"%p\",\"tag\":\"%s\",\"status\":\"%s\"},", i++, c->type, c->tag, ps_CrewStatusStr[c->status]);
 		}
-		fputs("\n", stderr);
+		fputs("]\n", stderr);
 	}
 	else fputs("ps_CrewRollCall: Pretty vacant...\n", stderr);
 }
 
 ps_CrewStatus ps_CrewCall(ps_Crew *c, ps_Updater func) {
 	return func(c);
+}
+
+/* The Fab Four - MATTHEW, MARK, LUKE and RINGO 
+	Dummy Crew members for testing with */
+static ps_CrewStatus MATTHEW(ps_Crew *c) {
+	c->destroy = c->update = MATTHEW;
+	c->tag = "Matthew";
+	puts("hello");
+	return ps_PAUSE;
+}
+
+static ps_CrewStatus MARK(ps_Crew *c) {
+	c->destroy = c->update = MARK;
+	c->tag = "Mark";
+	puts("hey hey");
+	return ps_CUT;
+}
+
+static ps_CrewStatus LUKE(ps_Crew *c) {
+	c->destroy = c->update = LUKE;
+	c->tag = "Luke";
+	puts("hi");
+	return ps_LIVE;
+}
+
+static ps_CrewStatus RINGO(ps_Crew *c) {
+	c->destroy = c->update = RINGO;
+	c->tag = "Ringo";
+	puts("HULLO THUR");
+	static int i = 0;
+	i++;
+	if (i > 10) return ps_EXIT;
+	else return ps_LIVE;
 }

@@ -11,12 +11,20 @@ static ps_CrewStatus DestroyStage(ps_Crew *c) {
 
 /* Update method for the STAGE - called every frame */
 static ps_CrewStatus UpdateStage(ps_Crew *c) {
-	puts("again again");
+	ps_Stage *stage = (ps_Stage *) c->attr;
+
+	SDL_Event e;
+	while (SDL_PollEvent(&e) != 0) {
+		if (e.type == SDL_QUIT) return ps_EXIT;
+	}
+	SDL_UpdateWindowSurface(stage->window);
+
 	return ps_LIVE;
 }
 
 /* The init function/type for the STAGE */
 ps_CrewStatus ps_STAGE(ps_Crew *c) {
+	c->tag = "STAGE";
 	c->type = ps_STAGE;
 	c->destroy = DestroyStage;
 	c->update = UpdateStage;
