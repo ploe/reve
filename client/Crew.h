@@ -19,13 +19,16 @@ enum {
 typedef struct ps_Crew {
 	char *tag;
 	void *attr;
-	void *type, *update, *destroy;
+	void *type, *update, *destroy, *marshal;
 	ps_CrewStatus status;	
 	struct ps_Crew *prev, *next;
 } ps_Crew;
 
 /*	ps_Updater is the type used to describe methods for the Crew	*/
 typedef ps_CrewStatus (*ps_Updater)(ps_Crew *);
+typedef char *(*ps_Marshaller)(ps_Crew *);
+
+extern const char *ps_CrewStatusStr[] ;
 
 ps_Crew *ps_CrewNew(ps_Updater type);
 ps_Bool ps_CrewRoll();

@@ -71,17 +71,17 @@ ps_Bool ps_CrewRoll() {
 	return ps_YES;
 }
 
-/* 	shows the Crew members currently in the stack in stderr
- 	now outputs JSON so we can do more with it!	*/
-void ps_CrewRollCall() {
-	const char *ps_CrewStatusStr[] = {
+const char *ps_CrewStatusStr[] = {
 		"LIVE",
 		"ENCORE",
 		"PAUSE",
 		"CUT",
 		"EXIT"
-	};
+};
 
+/* 	shows the Crew members currently in the stack in stderr
+ 	now outputs JSON so we can do more with it!	*/
+void ps_CrewRollCall() {
 	ps_Crew *c;
 	int i = 0;
 	
