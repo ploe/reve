@@ -32,6 +32,7 @@ enum {
 
 
 void ps_Panic(int i, char *prompt);
+char *ps_Format(const char *format, ...);
 char *ps_GetHTTP(char *url);
 
 mp_Atomizer ps_PrintAtom(mp_Atom atom, void *p);

@@ -95,39 +95,27 @@ void ps_CrewRollCall() {
 	else fputs("ps_CrewRollCall: Pretty vacant...\n", stderr);
 }
 
+/*	sticks the whole Crew in a JSON structure
+	this string will need freeing!	*/
+char *ps_CrewMarshal() {
+	ps_Crew *c;
+	char *dst = calloc(1, sizeof(char));
+	for (c = top; c != NULL; c = c->next) {
+		ps_Marshaller marshal = c->marshal;
+		char *str = marshal(c);
+		char *tmp = ps_Format("%s%s", dst, str);
+
+		free(dst);
+		dst = tmp;
+		free(str);
+	}
+
+	char *tmp = ps_Format("{%s}", dst);
+	free(dst);
+	return tmp;
+}
+
 ps_CrewStatus ps_CrewCall(ps_Crew *c, ps_Updater func) {
 	return func(c);
 }
 
-/* The Fab Four - MATTHEW, MARK, LUKE and RINGO 
-	Dummy Crew members for testing with */
-static ps_CrewStatus MATTHEW(ps_Crew *c) {
-	c->destroy = c->update = MATTHEW;
-	c->tag = "Matthew";
-	puts("hello");
-	return ps_PAUSE;
-}
-
-static ps_CrewStatus MARK(ps_Crew *c) {
-	c->destroy = c->update = MARK;
-	c->tag = "Mark";
-	puts("hey hey");
-	return ps_CUT;
-}
-
-static ps_CrewStatus LUKE(ps_Crew *c) {
-	c->destroy = c->update = LUKE;
-	c->tag = "Luke";
-	puts("hi");
-	return ps_LIVE;
-}
-
-static ps_CrewStatus RINGO(ps_Crew *c) {
-	c->destroy = c->update = RINGO;
-	c->tag = "Ringo";
-	puts("HULLO THUR");
-	static int i = 0;
-	i++;
-	if (i > 10) return ps_EXIT;
-	else return ps_LIVE;
-}

@@ -9,23 +9,12 @@ static ps_CrewStatus DestroyStage(ps_Crew *c) {
 	return ps_CUT;
 }
 
-
-/*	proof of concept Marshaller - returns length of 
-	JSON'd string	*/
-static int StageJSON(ps_Crew *c, char *dst, int size) {
-	char *format = "\"STAGE\":{\"status\":\"%s\"},";
-	return snprintf(dst, size, format, 
-		ps_CrewStatusStr[c->status]
-	);	
-}
-
 /* 	must remember to free the marshalled char 	*/
 static char *MarshalStage(ps_Crew *c) {
-	int size = 1 + StageJSON(c, NULL, 0);
-	char *dst = calloc(size, sizeof(char));
-	StageJSON(c, dst, size);
-
-	return dst;
+	return ps_Format("\"%s\":{status:\"%s\"}",
+		c->tag,
+		ps_CrewStatusStr[c->status]
+	);
 }
 
 /* Update method for the STAGE - called every frame */

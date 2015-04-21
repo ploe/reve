@@ -32,6 +32,7 @@ extern const char *ps_CrewStatusStr[] ;
 
 ps_Crew *ps_CrewNew(ps_Updater type);
 ps_Bool ps_CrewRoll();
+char *ps_CrewMarshal();
 void ps_CrewRollCall();
 ps_CrewStatus ps_CrewCall(ps_Crew *c, ps_Updater func);
 
