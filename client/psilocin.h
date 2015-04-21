@@ -40,6 +40,7 @@ mp_Atomizer ps_CountElems(mp_Atom atom, void *probe);
 
 //Our libs
 #include "Crew.h"
+#include "Player.h"
 #include "Stage.h"
 
 

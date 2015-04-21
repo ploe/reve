@@ -4,6 +4,8 @@
 	If allocation fails we break out of the program. We can assume a Crew
 	member is imperative to the flow of the program.
 */
+static char *MarshalDefault(ps_Crew *c);
+
 static ps_Crew *top = NULL;
 ps_Crew *ps_CrewNew(ps_Updater type) {
 	ps_Crew *c = calloc(1, sizeof(ps_Crew));
@@ -13,9 +15,11 @@ ps_Crew *ps_CrewNew(ps_Updater type) {
 		top = c;
 
 		if(type) {
-			type(c);
+			c->status = type(c);
 			c->type = type;
 		}
+
+		c->marshal = MarshalDefault;
 	}
 	else ps_Panic(ps_EOCREW_ALLOC, "ps_CrewNew: calloc failed to return anything. Out of memory?");
 	return c;
@@ -102,20 +106,71 @@ char *ps_CrewMarshal() {
 	char *dst = calloc(1, sizeof(char));
 	for (c = top; c != NULL; c = c->next) {
 		ps_Marshaller marshal = c->marshal;
-		char *str = marshal(c);
-		char *tmp = ps_Format("%s%s", dst, str);
+		if (marshal) {
+			char *str = marshal(c);
+			char *tmp = ps_Format("%s%s", dst, str);
 
-		free(dst);
-		dst = tmp;
-		free(str);
+			free(dst);
+			dst = tmp;
+			free(str);
+		}
 	}
 
 	char *tmp = ps_Format("{%s}", dst);
 	free(dst);
+
 	return tmp;
 }
 
 ps_CrewStatus ps_CrewCall(ps_Crew *c, ps_Updater func) {
 	return func(c);
 }
+
+/*	proof of concept Marshaller - returns length of 
+	JSON'd string	*/
+static char *MarshalDefault(ps_Crew *c) {
+	return ps_Format("\"%s\":{\"status\":\"%s\"},", 
+		c->tag, 
+		ps_CrewStatusStr[c->status]
+	);	
+}
+
+/* 	must remember to free the marshalled char 	*/
+/* The Fab Four - MATTHEW, MARK, LUKE and RINGO 
+	Dummy Crew members for testing with */
+static ps_CrewStatus MATTHEW(ps_Crew *c) {
+	c->destroy = c->update = MATTHEW;
+	c->tag = "Matthew";
+	c->marshal = MarshalDefault;
+	puts("hello");
+	return ps_PAUSE;
+}
+
+static ps_CrewStatus MARK(ps_Crew *c) {
+	c->destroy = c->update = MARK;
+	c->tag = "Mark";
+	c->marshal = MarshalDefault;
+	puts("hey hey");
+	return ps_CUT;
+}
+
+static ps_CrewStatus LUKE(ps_Crew *c) {
+	c->destroy = c->update = LUKE;
+	c->tag = "Luke";
+	c->marshal = MarshalDefault;
+	puts("hi");
+	return ps_LIVE;
+}
+
+static ps_CrewStatus RINGO(ps_Crew *c) {
+	c->destroy = c->update = RINGO;
+	c->tag = "Ringo";
+	c->marshal = MarshalDefault;
+	puts("HULLO THUR");
+	static int i = 0;
+	i++;
+	if (i > 10) return ps_EXIT;
+	else return ps_LIVE;
+}
+
 

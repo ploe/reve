@@ -78,7 +78,7 @@ char *ps_GetHTTP(char *url) {
 
 /* couple of debug Atomizer functions from libmurp */
 mp_Atomizer ps_PrintAtom(mp_Atom atom, void *p) {
-	printf("Atom {\n\tDatatype:\t%d\n\tContainer:\t%d\n", atom.type, atom.container);
+	printf("Atom {\n\tDatatype:\t%s\n\tContainer:\t%s\n", atom.type, atom.container);
 	if(atom.key.start) printf("\tKey:\t%.*s\n", atom.key.len, atom.key.start);
 	printf("\tValue:\t%.*s\n", atom.value.len, atom.value.start);
 	if ((atom.type == mp_OBJECT) || (atom.type == mp_ARRAY)) {
