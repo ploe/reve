@@ -41,5 +41,3 @@ ps_CrewStatus ps_PLAYER(ps_Crew *c) {
 
 	return ps_CUT;
 }
-
-

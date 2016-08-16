@@ -5,6 +5,7 @@
 typedef struct {
 	SDL_Window *window;
 	SDL_Surface *surface;
+	SDL_Renderer *renderer;
 } ps_Stage;
 
 ps_CrewStatus ps_STAGE(ps_Crew *c);
