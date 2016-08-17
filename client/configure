@@ -1,0 +1,17 @@
+#! /bin/bash
+
+# hashish hash map lib
+git clone git@github.com:ploe/hashish.git
+cd hashish
+./configure
+make
+cd -
+pwd
+
+# murp JSON lexer lib
+git clone git@github.com:ploe/murp.git
+cd murp
+make
+cd -
+pwd
+
