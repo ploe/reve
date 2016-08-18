@@ -7,7 +7,13 @@
 
 #include <curl/curl.h>
 #include <murp.h>
+
+#ifdef __linux
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#elif __APPLE__
+#include <SDL.h>
+#endif
 
 
 /*	app ExitCodes	*/
