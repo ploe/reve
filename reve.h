@@ -1,5 +1,5 @@
-#ifndef _PSILOCIN_MAIN_H
-#define _PSILOCIN_MAIN_H
+#ifndef _REVE_MAIN_H
+#define _REVE_MAIN_H
 
 // Their libs
 #include <stdio.h>
@@ -18,32 +18,32 @@
 
 
 /*	app ExitCodes	*/
-typedef int ps_ExitCode;
+typedef int rv_ExitCode;
 enum {
-	ps_EOK = 0,
-	_ps_ERRORS = 900,
-	ps_EOALLOC,
-	ps_EOCREW_ALLOC,
-	ps_EOSTAGE_INIT,
-	_ps_ENDOFERRORS
+	rv_EOK = 0,
+	_rv_ERRORS = 900,
+	rv_EOALLOC,
+	rv_EOCREW_ALLOC,
+	rv_EOSTAGE_INIT,
+	_rv_ENDOFERRORS
 };
 
 /* 	Fetch the appropriate method and call it on the Crew 
 	This kind of compacts the calling. */
 
-typedef int ps_Bool;
+typedef int rv_Bool;
 enum {
-	ps_YES = -1,
-	ps_NO
+	rv_YES = -1,
+	rv_NO
 };
 
 
-void ps_Panic(int i, char *prompt);
-char *ps_Format(const char *format, ...);
-char *ps_GetHTTP(char *url);
+void rv_Panic(int i, char *prompt);
+char *rv_Format(const char *format, ...);
+char *rv_GetHTTP(char *url);
 
-mp_Atomizer ps_PrintAtom(mp_Atom atom, void *p);
-mp_Atomizer ps_CountElems(mp_Atom atom, void *probe);
+mp_Atomizer rv_PrintAtom(mp_Atom atom, void *p);
+mp_Atomizer rv_CountElems(mp_Atom atom, void *probe);
 
 //Our libs
 #include "Crew.h"
