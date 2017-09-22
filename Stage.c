@@ -18,7 +18,7 @@ static char *MarshalStage(rv_Crew *c) {
 	);
 }
 
-SDL_Texture *chomp = NULL;
+rv_Texture *chomp = NULL;
 
 /* Update method for the STAGE - called every frame */
 static rv_CrewStatus UpdateStage(rv_Crew *c) {
@@ -34,7 +34,7 @@ static rv_CrewStatus UpdateStage(rv_Crew *c) {
 	r.w= r.h = 64;
 	r.x = r.y = 0;
 	static double i = 0;
-	SDL_RenderCopyEx(stage->renderer, chomp, NULL, &r, i+=0.01, NULL, SDL_FLIP_NONE);
+	SDL_RenderCopyEx(stage->renderer, chomp->texture, NULL, &r, i+=0.01, NULL, SDL_FLIP_NONE);
 	SDL_RenderPresent(stage->renderer);
 
 
@@ -43,10 +43,10 @@ static rv_CrewStatus UpdateStage(rv_Crew *c) {
 
 SDL_Texture *rv_LoadTexture(char *src, SDL_Renderer *renderer) {
 	SDL_Surface *surface = IMG_Load(src);
-	if (!surface) rv_Panic(-1, "unable to load image");
+	if (!surface) rv_Panic(-1, IMG_GetError());
 
 	SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-	if (!texture) rv_Panic(-1, "unable to load image");
+	if (!texture) rv_Panic(-1, SDL_GetError());
 
 	SDL_FreeSurface(surface);
 
@@ -67,14 +67,14 @@ rv_CrewStatus rv_STAGE(rv_Crew *c) {
 	if (!stage) rv_Panic(rv_EOSTAGE_INIT, "rv_STAGE: Could not allocate stage struct.");
 	c->attr = stage;
 
-	stage->window = SDL_CreateWindow("psilocin", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 360, SDL_WINDOW_SHOWN);
+	stage->window = SDL_CreateWindow("reve", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 360, SDL_WINDOW_SHOWN);
 	if (!stage->window) rv_Panic(rv_EOSTAGE_INIT, "rv_STAGE: Failed to create STAGE window.");
 
 	stage->renderer = SDL_CreateRenderer(stage->window, -1, SDL_RENDERER_ACCELERATED);
 	SDL_SetRenderDrawColor(stage->renderer, 255, 0, 128, 255);
 
 	IMG_Init(IMG_INIT_PNG);
-	chomp = rv_LoadTexture("Chomp_Rock-scaled.PNG", stage->renderer);	
+	chomp = rv_TextureNew("./Chomp_Rock-scaled.PNG", stage->renderer);	
 
 	rv_CrewNew(rv_PLAYER);
 

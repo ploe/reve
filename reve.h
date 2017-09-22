@@ -5,8 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <curl/curl.h>
-#include <murp.h>
+#include "murp.h"
+#include "hashish.h"
 
 #ifdef __linux
 #include <SDL2/SDL.h>
@@ -38,7 +38,7 @@ enum {
 };
 
 
-void rv_Panic(int i, char *prompt);
+void rv_Panic(int i, const char *prompt);
 char *rv_Format(const char *format, ...);
 char *rv_GetHTTP(char *url);
 
@@ -49,6 +49,7 @@ mp_Atomizer rv_CountElems(mp_Atom atom, void *probe);
 #include "Crew.h"
 #include "Player.h"
 #include "Stage.h"
+#include "Texture.h"
 
 
 #endif
