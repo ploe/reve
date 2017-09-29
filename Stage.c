@@ -19,6 +19,7 @@ static char *MarshalStage(rv_Crew *c) {
 }
 
 rv_Texture *chomp = NULL;
+rv_Tile *tile = NULL;
 
 /* Update method for the STAGE - called every frame */
 static rv_CrewStatus UpdateStage(rv_Crew *c) {
@@ -35,6 +36,7 @@ static rv_CrewStatus UpdateStage(rv_Crew *c) {
 	r.x = r.y = 0;
 	static double i = 0;
 	SDL_RenderCopyEx(stage->renderer, chomp->texture, NULL, &r, i+=0.01, NULL, SDL_FLIP_NONE);
+	rv_TileDraw(tile, stage);
 	SDL_RenderPresent(stage->renderer);
 
 
@@ -74,7 +76,10 @@ rv_CrewStatus rv_STAGE(rv_Crew *c) {
 	SDL_SetRenderDrawColor(stage->renderer, 255, 0, 128, 255);
 
 	IMG_Init(IMG_INIT_PNG);
-	chomp = rv_TextureNew("./Chomp_Rock-scaled.PNG", stage->renderer);	
+	chomp = rv_TextureNew("./Chomp_Rock-scaled.PNG", stage->renderer);
+	SDL_Rect clip = {0, 0, 100, 100};
+
+	tile = rv_TileNew("test", "overworld.png", clip, stage);
 
 	rv_CrewNew(rv_PLAYER);
 

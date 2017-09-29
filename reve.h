@@ -50,6 +50,6 @@ mp_Atomizer rv_CountElems(mp_Atom atom, void *probe);
 #include "Player.h"
 #include "Stage.h"
 #include "Texture.h"
-
+#include "Layer.h"
 
 #endif
