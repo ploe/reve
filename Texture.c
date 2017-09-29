@@ -2,14 +2,14 @@
 
 static ish_Map *textures = NULL;
 
-static rv_Texture *TextureGet(ish_Map *textures, char *key, void *value) {
+static void *TextureGet(ish_Map *textures, char *key, void *value) {
 	rv_Texture *texture = (rv_Texture *) value;
 	texture->rc++;
 
 	return texture;
 }
 
-static rv_Texture *TextureDrop(ish_Map *textures, char *key, void *value) {
+static void *TextureDrop(ish_Map *textures, char *key, void *value) {
 	rv_Texture *texture = (rv_Texture *) value;
 	texture->rc--;
 
@@ -38,7 +38,7 @@ void *rv_TextureNew(char *src, SDL_Renderer *renderer) {
 
 		SDL_FreeSurface(surface);
 
-		ish_MapSet(textures, src, texture);
+		ish_MapSetWithAllocators(textures, src, texture, TextureGet, TextureDrop);
 	}
 
 	return texture;

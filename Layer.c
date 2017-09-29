@@ -2,19 +2,14 @@
 
 static ish_Map *tiles;
 
-/* typedef struct {
-	SDL_Rect ;
-	rv_Tiles tiles[];
-} rv_Layer; */
-
-static rv_Tile *TileGet(ish_Map *tiles, char *key, void *value) {
+static void *TileGet(ish_Map *tiles, char *key, void *value) {
 	rv_Tile *t = (rv_Tile *) value;
 	t->rc++;
 
 	return t;
 }
 
-static rv_Tile *TileDrop(ish_Map *tiles, char *key, void *value) {
+static void *TileDrop(ish_Map *tiles, char *key, void *value) {
 	rv_Tile *t = (rv_Tile *) value;
 
 	t->rc--;
@@ -45,5 +40,5 @@ rv_Tile *rv_TileNew(char *name, char *texture, SDL_Rect clip, rv_Stage *stage) {
 }
 
 void rv_TileDraw(rv_Tile *t, rv_Stage *stage) {
-	SDL_RenderCopyEx(stage->renderer, t->texture->texture, &t->clip, &t->clip, 0, NULL, SDL_FLIP_NONE);
+	SDL_RenderCopy(stage->renderer, t->texture->texture, &t->clip, &t->clip);
 }
