@@ -1,16 +1,18 @@
 #! /bin/bash
 
+mkdir -p libs
+
 # hashish hash map lib
-git clone git@github.com:ploe/hashish.git
-cd hashish
+git clone git@github.com:ploe/hashish.git ./libs/hashish
+cd ./libs/hashish
 ./configure
 make
 cd -
 pwd
 
 # murp JSON lexer lib
-git clone git@github.com:ploe/murp.git
-cd murp
+git clone git@github.com:ploe/murp.git ./libs/murp
+cd ./libs/murp
 make
 cd -
 pwd
