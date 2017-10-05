@@ -16,6 +16,9 @@
 #include <SDL_image.h>
 #endif
 
+#include "lua.h"
+#include "lauxlib.h"
+#include "lualib.h"
 
 /*	app ExitCodes	*/
 typedef int rv_ExitCode;

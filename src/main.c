@@ -1,9 +1,4 @@
 #include "reve.h"
-
-#include "lua.h"
-#include "lauxlib.h"
-#include "lualib.h"
-
 #include "sqlite3.h"
 
 typedef struct {
@@ -34,25 +29,13 @@ void SQLLoad() {
 }
 
 int main(int argc, char *argv[]) {
-	lua_State *L = NULL;
-	L = luaL_newstate();
-	luaL_openlibs(L);
-
-	int i;
-	for (i = 1; i < argc; i++) {
-		if (luaL_loadfile(L, argv[i]) || lua_pcall(L, 0, 0, 0)) {
-			fprintf(stderr, "%s\n", lua_tostring(L, -1));
-			lua_pop(L, 1);
-		}
-	}
-	lua_close(L);
-
 	SQLLoad();
 
 	/* All the world's a stage,	*/
 	rv_CrewNew(rv_STAGE);
 
-	while (rv_CrewRoll()) continue;	
+	while (rv_CrewRoll()) continue;
+
 	rv_CrewPurge();
 	/* Sans teeth, sans eyes, sans taste, sans everything. */
 

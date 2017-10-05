@@ -6,8 +6,11 @@ typedef struct {
 	SDL_Window *window;
 	SDL_Surface *surface;
 	SDL_Renderer *renderer;
+	lua_State *lua;
 } rv_Stage;
 
 rv_CrewStatus rv_STAGE(rv_Crew *c);
+
+lua_State *rv_StageGetLua();
 
 #endif
