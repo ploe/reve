@@ -7,6 +7,7 @@ typedef struct {
 	SDL_Surface *surface;
 	SDL_Renderer *renderer;
 	lua_State *lua;
+	sqlite3 *sqlite;
 } rv_Stage;
 
 rv_CrewStatus rv_STAGE(rv_Crew *c);

@@ -1,5 +1,4 @@
 #include "reve.h"
-#include "sqlite3.h"
 
 typedef struct {
 	int *map;

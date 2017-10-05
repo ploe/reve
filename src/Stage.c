@@ -2,6 +2,40 @@
 
 static rv_Stage *stage = NULL;
 
+lua_State *LuaInit() {
+	lua_State *L = NULL;
+
+	L = luaL_newstate();
+	luaL_openlibs(L);
+
+	const char *bootfiles[] = {
+		"main",
+		"main.luac",
+		"main.lua",
+		NULL,
+	};
+
+	const char **file = NULL;
+	for (file = bootfiles; file != NULL; file++) {
+		if (luaL_loadfile(L, *file) || lua_pcall(L, 0, 0, 0)) {
+			lua_pop(L, 1);
+			continue;
+		}
+		break;
+	}
+
+	if (file == NULL) {
+		lua_close(stage->lua);
+		rv_Panic(-1, "cannot open [main, main.luac, main.lua]: No such file or directory");
+	}
+
+	return L;
+}
+
+lua_State *rv_StageGetLua() {
+	return stage->lua;
+}
+
 /* Destroy function for the STAGE - the return value isn't important */
 static rv_CrewStatus DestroyStage(rv_Crew *c) {
 	rv_Stage *stage = (rv_Stage *) c->attr;
@@ -57,37 +91,6 @@ SDL_Texture *rv_LoadTexture(char *src, SDL_Renderer *renderer) {
 	SDL_FreeSurface(surface);
 
 	return texture;
-}
-
-lua_State *LuaInit() {
-	lua_State *L = NULL;
-	L = luaL_newstate();
-	luaL_openlibs(L);
-
-	const char *bootfiles[] = {
-		"main",
-		"main.luac",
-		"main.lua",
-		NULL,
-	};
-
-	const char **file = NULL;
-	for (file = bootfiles; file != NULL; file++) {
-		if (luaL_loadfile(L, *file) || lua_pcall(L, 0, 0, 0)) {
-			lua_pop(L, 1);
-			continue;
-		}
-		break;
-	}
-
-	if (file == NULL)
-		rv_Panic(-1, "cannot open [main, main.luac, main.lua]: No such file or directory");
-
-	return L;
-}
-
-lua_State *rv_StageGetLua() {
-	return stage->lua;
 }
 
 /* The init function/type for the STAGE */

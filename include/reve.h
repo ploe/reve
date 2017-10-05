@@ -20,6 +20,8 @@
 #include "lauxlib.h"
 #include "lualib.h"
 
+#include "sqlite3.h"
+
 /*	app ExitCodes	*/
 typedef int rv_ExitCode;
 enum {
