@@ -8,6 +8,8 @@ typedef struct {
 	SDL_Renderer *renderer;
 } rv_Stage;
 
+SDL_Renderer *rv_StageGetRenderer();
+
 rv_CrewStatus rv_STAGE(rv_Crew *c);
 
 #endif

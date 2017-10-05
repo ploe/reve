@@ -1,5 +1,11 @@
 #include "reve.h"
 
+static rv_Stage *stage = NULL;
+
+SDL_Renderer *rv_StageGetRenderer() {
+	return stage->renderer;
+}
+
 /* Destroy function for the STAGE - the return value isn't important */
 static rv_CrewStatus DestroyStage(rv_Crew *c) {
 	rv_Stage *stage = (rv_Stage *) c->attr;
@@ -65,21 +71,23 @@ rv_CrewStatus rv_STAGE(rv_Crew *c) {
 
 	if (SDL_Init( SDL_INIT_VIDEO ) < 0) rv_Panic(rv_EOSTAGE_INIT, "rv_STAGE: SDL_Init Failed");
 
-	rv_Stage *stage = calloc(1, sizeof(rv_Stage));
+	stage = calloc(1, sizeof(rv_Stage));
 	if (!stage) rv_Panic(rv_EOSTAGE_INIT, "rv_STAGE: Could not allocate stage struct.");
 	c->attr = stage;
 
-	stage->window = SDL_CreateWindow("reve", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 360, SDL_WINDOW_SHOWN);
-	if (!stage->window) rv_Panic(rv_EOSTAGE_INIT, "rv_STAGE: Failed to create STAGE window.");
+	stage->window = SDL_CreateWindow("reve", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 720, SDL_WINDOW_SHOWN);
 
+	if (!stage->window) rv_Panic(rv_EOSTAGE_INIT, "rv_STAGE: Failed to create STAGE window.");
+	SDL_ShowCursor(SDL_DISABLE);
 	stage->renderer = SDL_CreateRenderer(stage->window, -1, SDL_RENDERER_ACCELERATED);
 	SDL_SetRenderDrawColor(stage->renderer, 255, 0, 128, 255);
 
 	IMG_Init(IMG_INIT_PNG);
 	chomp = rv_TextureNew("./Chomp_Rock-scaled.PNG", stage->renderer);
-	SDL_Rect clip = {0, 0, 100, 100};
+	SDL_Rect clip = {375, 137, 16, 16};
+	SDL_Rect offset = {0, 0, 64, 64};
 
-	tile = rv_TileNew("test", "overworld.png", clip, stage);
+	tile = rv_TileNew("test", "overworld.png", clip, offset, stage);
 
 	rv_CrewNew(rv_PLAYER);
 
