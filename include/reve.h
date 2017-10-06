@@ -45,10 +45,6 @@ enum {
 
 void rv_Panic(int i, const char *prompt);
 char *rv_Format(const char *format, ...);
-char *rv_GetHTTP(char *url);
-
-mp_Atomizer rv_PrintAtom(mp_Atom atom, void *p);
-mp_Atomizer rv_CountElems(mp_Atom atom, void *probe);
 
 //Our libs
 #include "Crew.h"
@@ -56,5 +52,6 @@ mp_Atomizer rv_CountElems(mp_Atom atom, void *probe);
 #include "Stage.h"
 #include "Texture.h"
 #include "Layer.h"
+#include "Persist.h"
 
 #endif
