@@ -44,7 +44,6 @@ enum {
 
 
 void rv_Panic(int i, const char *prompt);
-char *rv_Format(const char *format, ...);
 
 //Our libs
 #include "Crew.h"
@@ -53,5 +52,6 @@ char *rv_Format(const char *format, ...);
 #include "Texture.h"
 #include "Layer.h"
 #include "Persist.h"
+#include "Text.h"
 
 #endif

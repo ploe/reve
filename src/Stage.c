@@ -66,14 +66,6 @@ static rv_CrewStatus DestroyStage(rv_Crew *c) {
 	return rv_CUT;
 }
 
-/* 	must remember to free the marshalled char 	*/
-static char *MarshalStage(rv_Crew *c) {
-	return rv_Format("\"%s\":{status:\"%s\"}",
-		c->tag,
-		rv_CrewStatusStr[c->status]
-	);
-}
-
 rv_Texture *chomp = NULL;
 rv_Tile *tile = NULL;
 
@@ -117,7 +109,6 @@ rv_CrewStatus rv_STAGE(rv_Crew *c) {
 	c->type = rv_STAGE;
 	c->destroy = DestroyStage;
 	c->update = UpdateStage;
-	c->marshal = MarshalStage;	
 
 	if (SDL_Init( SDL_INIT_VIDEO ) < 0) rv_Panic(rv_EOSTAGE_INIT, "rv_STAGE: SDL_Init Failed");
 
