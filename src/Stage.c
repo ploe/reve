@@ -36,10 +36,28 @@ lua_State *rv_StageGetLua() {
 	return stage->lua;
 }
 
+sqlite3 *SQLiteInit(const char *path) {
+	sqlite3 *db;
+	int rc;
+
+	rc = sqlite3_open(path, &db);
+	if (rc != SQLITE_OK) {
+		rv_Panic(-1, sqlite3_errmsg(db));
+		sqlite3_close(db);
+	}
+
+	return db;
+}
+
+sqlite3 *rv_StageGetSQLite() {
+	return stage->sqlite;
+}
+
 /* Destroy function for the STAGE - the return value isn't important */
 static rv_CrewStatus DestroyStage(rv_Crew *c) {
 	rv_Stage *stage = (rv_Stage *) c->attr;
 	lua_close(stage->lua);
+	sqlite3_close(stage->sqlite);
 
 	SDL_DestroyRenderer(stage->renderer);
 	SDL_DestroyWindow(stage->window);
@@ -118,6 +136,7 @@ rv_CrewStatus rv_STAGE(rv_Crew *c) {
 	SDL_Rect clip = {0, 0, 100, 100};
 
 	stage->lua = LuaInit();
+	stage->sqlite = SQLiteInit("./slot1.db");
 
 	tile = rv_TileNew("test", "overworld.png", clip, stage);
 

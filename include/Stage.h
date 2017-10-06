@@ -13,5 +13,6 @@ typedef struct {
 rv_CrewStatus rv_STAGE(rv_Crew *c);
 
 lua_State *rv_StageGetLua();
+sqlite3 *rv_StageGetSQLite();
 
 #endif

@@ -6,32 +6,27 @@ typedef struct {
 	rv_Bool enabled;
 } rv_Layer;
 
-void SQLLoad() {
-	sqlite3 *db;
-	char *zErrMsg = NULL;
+rv_Bool rv_PersistCreateTable(sqlite3 *db, const char *table) {
+	char *schema = rv_Format("CREATE TABLE IF NOT EXISTS %s(id PRIMARY KEY NOT NULL, key TEXT, value TEXT)", table);
 	int rc;
+	char *err = NULL;
 
-	rc = sqlite3_open("slot1.db", &db);
-	if (rc) {
-		fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
-		sqlite3_close(db);
-		return;
-	}
-
-	rc = sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS mmmmm(id PRIMARY KEY NOT NULL, key TEXT, value TEXT)", NULL, 0, &zErrMsg);
+	rc = sqlite3_exec(db, schema, NULL, 0, &err);
 	if (rc != SQLITE_OK) {
-		fprintf(stderr, "SQL error: %s\n", zErrMsg);
-		sqlite3_free(zErrMsg);
+		free(schema);
+		rv_Panic(-1, err);
 	}
 
-	sqlite3_close(db);
+	return rv_YES;
+	free(schema);
 }
 
 int main(int argc, char *argv[]) {
-	SQLLoad();
-
 	/* All the world's a stage,	*/
 	rv_CrewNew(rv_STAGE);
+
+	sqlite3 *db = rv_StageGetSQLite();
+	rv_PersistCreateTable(db, "myke");
 
 	while (rv_CrewRoll()) continue;
 
