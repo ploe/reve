@@ -3,6 +3,9 @@
 #include "GL/glu.h"
 #include <stdio.h>
 
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 600
+
 SDL_Window *window = NULL;
 SDL_GLContext *context = NULL;
 
@@ -12,9 +15,12 @@ void panic(const char *msg) {
 }
 
 int initGL() {
+	glViewport(0.f, 0.f, SCREEN_WIDTH, SCREEN_HEIGHT);
+
 	GLenum error = GL_NO_ERROR;
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
+	glOrtho(0.0, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0, 1.0, -1.0);
 
 	error = glGetError();
 	if (error != GL_NO_ERROR) panic(gluErrorString(error));
@@ -26,6 +32,7 @@ int initGL() {
 	if (error != GL_NO_ERROR) panic(gluErrorString(error));
 
 	glClearColor(0.f, 1.f, 0.f, 1.f);
+	glEnable(GL_TEXTURE_2D);
 
 	return -1;
 }
@@ -54,10 +61,10 @@ int init() {
 void render() {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glBegin(GL_QUADS);
-		glVertex2f(-0.5f, -0.5f);
-		glVertex2f(0.5f, -0.5f);
-		glVertex2f(0.5f, 0.5f);
-		glVertex2f(-0.5f, 0.5f);
+		glVertex2f(0.f, 0.f);
+		glVertex2f(100.f, 0.f);
+		glVertex2f(100.f, 100.f);
+		glVertex2f(0.f, 100.f);
 	glEnd();
 
 	SDL_GL_SwapWindow(window);
@@ -69,12 +76,12 @@ int main(int argc, char *argv[]) {
 
 	SDL_Event event;
 	while (event.type != SDL_QUIT) {
+		render();
+
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT) return 0;
 		}
-
 		
-		render();
 	}
 
 }
