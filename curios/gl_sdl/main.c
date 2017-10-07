@@ -1,6 +1,5 @@
 #include "SDL.h"
 #include "SDL_opengl.h"
-#include "GL/glu.h"
 #include <stdio.h>
 
 #define SCREEN_WIDTH 800
@@ -23,13 +22,13 @@ int initGL() {
 	glOrtho(0.0, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0, 1.0, -1.0);
 
 	error = glGetError();
-	if (error != GL_NO_ERROR) panic(gluErrorString(error));
+	if (error != GL_NO_ERROR) panic("OpenGL failed to initialise.");
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
 	error = glGetError();
-	if (error != GL_NO_ERROR) panic(gluErrorString(error));
+	if (error != GL_NO_ERROR) panic("OpenGL failed to initialise.");
 
 	glClearColor(0.f, 1.f, 0.f, 1.f);
 	glEnable(GL_TEXTURE_2D);
