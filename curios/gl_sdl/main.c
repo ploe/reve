@@ -1,6 +1,12 @@
-#include "SDL.h"
-#include "SDL_opengl.h"
-#include <stdio.h>
+#ifdef __linux
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <SDL_opengl.h>
+#elif __APPLE__
+#include <SDL.h>
+#include <SDL_image.h>
+#include <SDL_opengl.h>
+#endif
 
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
@@ -11,6 +17,44 @@ SDL_GLContext *context = NULL;
 void panic(const char *msg) {
 	fputs(msg, stderr);
 	exit(-1);
+}
+
+int ConvertSurfaceToTexImage2D(SDL_Surface *surface) {
+	GLint internal;
+	GLenum format; 
+	GLenum type;
+
+	switch (surface->format->format) {
+		case SDL_PIXELFORMAT_ARGB8888:
+		case SDL_PIXELFORMAT_RGB888:
+			internal = GL_RGBA8;
+			format = GL_BGRA;
+			type = GL_UNSIGNED_INT_8_8_8_8_REV;
+		break;
+
+		case SDL_PIXELFORMAT_YV12:
+		case SDL_PIXELFORMAT_IYUV:
+		case SDL_PIXELFORMAT_NV12:
+		case SDL_PIXELFORMAT_NV21:
+			internal = GL_LUMINANCE;
+			format = GL_LUMINANCE;
+			type = GL_UNSIGNED_BYTE;
+		break;
+
+		#ifdef __MACOSX__
+		case SDL_PIXELFORMAT_UYVY:
+			internal = GL_RGB8;
+			format = GL_YCBCR_422_APPLE;
+			type = GL_UNSIGNED_SHORT_8_8_APPLE;
+   		break;
+   		#endif
+
+		default:
+			return -1;
+		break;
+  	}
+
+	glTexImage2D(GL_TEXTURE_2D, 0, internal, surface->w, surface->h, 0, format, type, surface->pixels);
 }
 
 int initGL() {
@@ -36,6 +80,8 @@ int initGL() {
 	return -1;
 }
 
+SDL_Surface *surface = NULL;
+GLuint tex;
 int init() {
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) panic(SDL_GetError());
 
@@ -54,16 +100,25 @@ int init() {
 
 	initGL();
 
+	
+	surface = IMG_Load("./myke.png");
+	glGenTextures(1, &tex);
+	glBindTexture(GL_TEXTURE_2D, tex);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+
+	ConvertSurfaceToTexImage2D(surface);
 	return -1;
 }
 
 void render() {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glBegin(GL_QUADS);
-		glVertex2f(0.f, 0.f);
-		glVertex2f(100.f, 0.f);
-		glVertex2f(100.f, 100.f);
-		glVertex2f(0.f, 100.f);
+		glTexCoord2f( 0.f, 0.f ); glVertex2f(0.f, 0.f);
+		glTexCoord2f( 1.f, 0.f ); glVertex2f(400.f, 0.f);
+		glTexCoord2f( 1.f, 1.f ); glVertex2f(400.f, 400.f);
+		glTexCoord2f( 0.f, 1.f ); glVertex2f(0.f, 400.f);
 	glEnd();
 
 	SDL_GL_SwapWindow(window);
