@@ -1,3 +1,6 @@
+#define GLEW_STATIC
+#include <GL/glew.h>
+
 #ifdef __linux
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -55,6 +58,7 @@ int ConvertSurfaceToTexImage2D(SDL_Surface *surface) {
   	}
 
 	glTexImage2D(GL_TEXTURE_2D, 0, internal, surface->w, surface->h, 0, format, type, surface->pixels);
+	return 0;
 }
 
 int initGL() {
@@ -85,9 +89,11 @@ GLuint tex;
 int init() {
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) panic(SDL_GetError());
 
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
-
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+	
 	window = SDL_CreateWindow("opengl test", 0, 0, 800, 600, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 
 	if (!window)  panic(SDL_GetError());
@@ -98,28 +104,30 @@ int init() {
 
 	if (SDL_GL_SetSwapInterval(1) < 0) panic(SDL_GetError());
 
-	initGL();
+	glewExperimental = GL_TRUE;
+	glewInit();
+//	initGL();
 
 	
-	surface = IMG_Load("./myke.png");
-	glGenTextures(1, &tex);
-	glBindTexture(GL_TEXTURE_2D, tex);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//	surface = IMG_Load("./myke.png");
+//	glGenTextures(1, &tex);
+//	glBindTexture(GL_TEXTURE_2D, tex);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 
-	ConvertSurfaceToTexImage2D(surface);
+//	ConvertSurfaceToTexImage2D(surface);
 	return -1;
 }
 
 void render() {
-	glClear(GL_COLOR_BUFFER_BIT);
-	glBegin(GL_QUADS);
-		glTexCoord2f( 0.f, 0.f ); glVertex2f(0.f, 0.f);
-		glTexCoord2f( 1.f, 0.f ); glVertex2f(400.f, 0.f);
-		glTexCoord2f( 1.f, 1.f ); glVertex2f(400.f, 400.f);
-		glTexCoord2f( 0.f, 1.f ); glVertex2f(0.f, 400.f);
-	glEnd();
+//	glClear(GL_COLOR_BUFFER_BIT);
+//	glBegin(GL_QUADS);
+//		glTexCoord2f( 0.f, 0.f ); glVertex2f(0.f, 0.f);
+//		glTexCoord2f( 1.f, 0.f ); glVertex2f(400.f, 0.f);
+//		glTexCoord2f( 1.f, 1.f ); glVertex2f(400.f, 400.f);
+//		glTexCoord2f( 0.f, 1.f ); glVertex2f(0.f, 400.f);
+//	glEnd();
 
 	SDL_GL_SwapWindow(window);
 }
@@ -138,4 +146,6 @@ int main(int argc, char *argv[]) {
 		
 	}
 
+	SDL_GL_DeleteContext(context);
+	SDL_Quit();
 }
