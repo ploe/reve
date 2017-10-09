@@ -12,6 +12,7 @@ int main(int argc, char *argv[]) {
 
 	sqlite3 *db = rv_StageGetSQLite();
 	rv_PersistCreateTable(db, "myke");
+	rv_PersistSavePair(db, "myke", "key", "value");
 
 	while (rv_CrewRoll()) continue;
 
