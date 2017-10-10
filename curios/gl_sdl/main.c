@@ -132,9 +132,79 @@ void render() {
 	SDL_GL_SwapWindow(window);
 }
 
+const char *VERTEX_SHADER =
+	"#version 150 core "
+	"in vec2 position; "
+	"void main() "
+	"{ "
+		"gl_Position = vec4(position, 0.0, 1.0); "
+	"}";
+
+const char *FRAGMENT_SHADER =
+	"#version 150 core "
+	"out vec4 outColor; "
+	"void main() { "
+		"outColor = vec4(1.0, 1.0, 1.0, 1.0); "
+	"}";
+
+GLuint CompileShader(const char *src) {
+	GLuint shader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(shader, 1, &src, NULL);
+	glCompileShader(shader);
+
+	GLint status;
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+
+	if (!status) {
+		const GLuint LENGTH = 1024;
+
+		char msg[LENGTH];
+		glGetShaderInfoLog(shader, LENGTH, NULL, msg);
+		fprintf(stderr, "%s\n", src);
+		panic(msg);
+	}
+
+	return shader;
+}
 
 int main(int argc, char *argv[]) {
 	init();
+
+	GLuint vertexShader = CompileShader(VERTEX_SHADER);
+	GLuint fragmentShader = CompileShader(FRAGMENT_SHADER);
+
+	GLuint shaderProgram = glCreateProgram();
+	glAttachShader(shaderProgram, vertexShader);
+	glAttachShader(shaderProgram, fragmentShader);
+
+	glBindFragDataLocation(shaderProgram, 0, "outColor");
+	glLinkProgram(shaderProgram);
+	glUseProgram(shaderProgram);
+
+	GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
+	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(posAttrib);
+
+	GLuint vao;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+
+	float vertices[] = {
+		0.0f,  0.5f,
+		0.5f, -0.5f,
+		-0.5f, -0.5f
+	};
+
+	GLuint vbo;
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	fprintf(stderr, "%u\n", vbo);
+
+	
+	glDrawArrays(GL_TRIANGLES, 0, 3);
 
 	SDL_Event event;
 	while (event.type != SDL_QUIT) {
