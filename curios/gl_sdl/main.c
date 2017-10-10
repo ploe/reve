@@ -132,7 +132,7 @@ void render() {
 	SDL_GL_SwapWindow(window);
 }
 
-const char *VERTEX_SHADER =
+const char *VERTEX_SRC =
 	"#version 150 core "
 	"in vec2 position; "
 	"void main() "
@@ -140,17 +140,17 @@ const char *VERTEX_SHADER =
 		"gl_Position = vec4(position, 0.0, 1.0); "
 	"}";
 
-const char *FRAGMENT_SHADER =
+const char *FRAGMENT_SRC =
 	"#version 150 core "
 	"out vec4 outColor; "
 	"void main() { "
 		"outColor = vec4(1.0, 1.0, 1.0, 1.0); "
 	"}";
 
-GLuint CompileShader(const char *src) {
-	GLuint shader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(shader, 1, &src, NULL);
-	glCompileShader(shader);
+GLuint CompileShader(const char *src, GLenum type) {
+	GLuint shader = glCreateShader(type);
+   	glShaderSource(shader, 1, &src, NULL);
+    	glCompileShader(shader);	
 
 	GLint status;
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
@@ -170,25 +170,14 @@ GLuint CompileShader(const char *src) {
 int main(int argc, char *argv[]) {
 	init();
 
-	GLuint vertexShader = CompileShader(VERTEX_SHADER);
-	GLuint fragmentShader = CompileShader(FRAGMENT_SHADER);
-
-	GLuint shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-
-	glBindFragDataLocation(shaderProgram, 0, "outColor");
-	glLinkProgram(shaderProgram);
-	glUseProgram(shaderProgram);
-
-	GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
-	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(posAttrib);
-
+	// create vertex array object
 	GLuint vao;
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
+	// create vertex buffer object
+	GLuint vbo;
+	glGenBuffers(1, &vbo);
 
 	float vertices[] = {
 		0.0f,  0.5f,
@@ -196,24 +185,43 @@ int main(int argc, char *argv[]) {
 		-0.5f, -0.5f
 	};
 
-	GLuint vbo;
-	glGenBuffers(1, &vbo);
+	// copy data in to it
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	fprintf(stderr, "%u\n", vbo);
+ 	// Create and compile the vertex shader
+    	GLuint vertexShader = CompileShader(VERTEX_SRC, GL_VERTEX_SHADER);
+ 
+    	// Create and compile the fragment shader
+	GLuint fragmentShader = CompileShader(FRAGMENT_SRC, GL_FRAGMENT_SHADER);
 
+	// link vertex and fragment shader in to a shader program
+	GLuint shaderProgram = glCreateProgram();
+	glAttachShader(shaderProgram, vertexShader);
+	glAttachShader(shaderProgram, fragmentShader);
+	glBindFragDataLocation(shaderProgram, 0, "outColor");
+	glLinkProgram(shaderProgram);
+	glUseProgram(shaderProgram);
 	
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	// specify layout of vertex data
+	GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
+	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(posAttrib);
+
+	fprintf(stderr, "%u\n", vbo);
+	
+	
 
 	SDL_Event event;
 	while (event.type != SDL_QUIT) {
-		render();
-
+		
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT) return 0;
 		}
-		
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+       		glClear(GL_COLOR_BUFFER_BIT);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		render();
 	}
 
 	SDL_GL_DeleteContext(context);
