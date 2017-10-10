@@ -3,5 +3,6 @@
 
 rv_Bool rv_PersistCreateTable(sqlite3 *db, const char *table);
 rv_Bool rv_PersistSavePair(sqlite3 *db, const char *table, const char *key, const char *value);
+rv_Bool rv_PersistClearTable(sqlite3 *db, const char *table);
 
 #endif

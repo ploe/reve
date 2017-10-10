@@ -11,6 +11,7 @@ int main(int argc, char *argv[]) {
 	rv_CrewNew(rv_STAGE);
 
 	sqlite3 *db = rv_StageGetSQLite();
+	rv_PersistClearTable(db, "myke");
 	rv_PersistCreateTable(db, "myke");
 	rv_PersistSavePair(db, "myke", "key", "value");
 	rv_PersistSavePair(db, "myke", "imagine", "this");
