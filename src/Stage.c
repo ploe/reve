@@ -16,7 +16,7 @@ lua_State *LuaInit() {
 	};
 
 	const char **file = NULL;
-	for (file = bootfiles; file != NULL; file++) {
+	for (file = bootfiles; *file != NULL; file++) {
 		if (luaL_loadfile(L, *file) || lua_pcall(L, 0, 0, 0)) {
 			lua_pop(L, 1);
 			continue;
