@@ -21,19 +21,18 @@ int LuaSave(lua_State *L) {
 			rv_PersistSavePair(db, table, key, value);
 			lua_pop(L, 1);
 		}
-	}
 
-	lua_pushboolean(L, 1);
+		// rv.Save returns true on success, and false on failure.
+		lua_pushboolean(L, 1);
+	}
+	else lua_pushboolean(L, 0);
+
 	return 1;
 }
 
 rv_Bool rv_PersistInit() {
 	lua_State *L = rv_StageGetLua();
 	lua_register(L, "Save", LuaSave);
-
-	if (luaL_loadfile(L, "./save.lua") || lua_pcall(L, 0, 0, 0)) {
-		lua_pop(L, 1);
-	}
 
 	return rv_YES;
 }

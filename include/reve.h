@@ -26,14 +26,14 @@
 typedef int rv_ExitCode;
 enum {
 	rv_EOK = 0,
-	_rv_ERRORS = 900,
+	_rv_ERRORS = 999,
 	rv_EOALLOC,
 	rv_EOCREW_ALLOC,
 	rv_EOSTAGE_INIT,
 	_rv_ENDOFERRORS
 };
 
-/* 	Fetch the appropriate method and call it on the Crew 
+/* 	Fetch the appropriate method and call it on the Crew
 	This kind of compacts the calling. */
 
 typedef int rv_Bool;

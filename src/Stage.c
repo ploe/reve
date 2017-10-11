@@ -128,6 +128,8 @@ rv_CrewStatus rv_STAGE(rv_Crew *c) {
 
 	stage->lua = LuaInit();
 	stage->sqlite = SQLiteInit("./slot1.db");
+	
+	rv_PersistInit();
 
 	tile = rv_TileNew("test", "overworld.png", clip, stage);
 
