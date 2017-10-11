@@ -1,5 +1,6 @@
 #include "reve.h"
 
+/* LuaSave(string, table) - Saves the Lua table with the name string */
 int LuaSave(lua_State *L) {
 	enum {
 		NAME = 1,
@@ -22,7 +23,6 @@ int LuaSave(lua_State *L) {
 			lua_pop(L, 1);
 		}
 
-		// rv.Save returns true on success, and false on failure.
 		lua_pushboolean(L, 1);
 	}
 	else lua_pushboolean(L, 0);
@@ -30,8 +30,7 @@ int LuaSave(lua_State *L) {
 	return 1;
 }
 
-rv_Bool rv_PersistInit() {
-	lua_State *L = rv_StageGetLua();
+rv_Bool rv_PersistLuaBindings(lua_State *L) {
 	lua_register(L, "Save", LuaSave);
 
 	return rv_YES;

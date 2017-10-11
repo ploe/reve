@@ -6,30 +6,45 @@ lua_State *LuaInit() {
 	lua_State *L = NULL;
 
 	L = luaL_newstate();
+	if (!L) rv_Panic(-1, "LuaInit failed.");
+
 	luaL_openlibs(L);
+	rv_PersistLuaBindings();
 
-	const char *bootfiles[] = {
-		"main",
-		"main.luac",
-		"main.lua",
-		NULL,
-	};
-
-	const char **file = NULL;
-	for (file = bootfiles; *file != NULL; file++) {
-		if (luaL_loadfile(L, *file) || lua_pcall(L, 0, 0, 0)) {
-			lua_pop(L, 1);
-			continue;
-		}
-		break;
-	}
-
-	if (file == NULL) {
-		lua_close(stage->lua);
-		rv_Panic(-1, "cannot open [main, main.luac, main.lua]: No such file or directory");
+	rv_Bool bootstrap = rv_StageLuaImport(L, "bootstrap");
+	if (!bootstrap) {
+		lua_close(L);
+		rv_Panic(-1, "cannot open bootstrap: No such file or directory");
 	}
 
 	return L;
+}
+
+rv_Bool rv_StageLuaImport(lua_State *L, const char *slug) {
+	const char *extensions[] = {
+		".luac",
+		".lua",
+		"",
+		NULL,
+	};
+
+	const char **ext = NULL;
+	for (ext = extensions; *ext != NULL; ext++) {
+		rv_Text file = rv_TextNew("./%s%s", slug, *ext);
+		puts(file);
+		if (luaL_loadfile(L, file) || lua_pcall(L, 0, 0, 0)) {
+			file = rv_TextFree(file);
+			fprintf(stderr, "%s\n", lua_tostring(L, -1));
+			lua_pop(L, 1);
+			continue;
+		}
+		else {
+			file = rv_TextFree(file);
+			break;
+		}
+	}
+
+	return (*ext != NULL) ? rv_YES : rv_NO;
 }
 
 lua_State *rv_StageGetLua() {
@@ -66,7 +81,6 @@ static rv_CrewStatus DestroyStage(rv_Crew *c) {
 	return rv_CUT;
 }
 
-rv_Texture *chomp = NULL;
 rv_Tile *tile = NULL;
 
 /* Update method for the STAGE - called every frame */
@@ -83,7 +97,6 @@ static rv_CrewStatus UpdateStage(rv_Crew *c) {
 	r.w= r.h = 64;
 	r.x = r.y = 0;
 	static double i = 0;
-	SDL_RenderCopyEx(stage->renderer, chomp->texture, NULL, &r, i+=0.01, NULL, SDL_FLIP_NONE);
 	rv_TileDraw(tile, stage);
 	SDL_RenderPresent(stage->renderer);
 
@@ -123,14 +136,11 @@ rv_CrewStatus rv_STAGE(rv_Crew *c) {
 	SDL_SetRenderDrawColor(stage->renderer, 255, 0, 128, 255);
 
 	IMG_Init(IMG_INIT_PNG);
-	chomp = rv_TextureNew("./Chomp_Rock-scaled.PNG", stage->renderer);
 	SDL_Rect clip = {0, 0, 100, 100};
 
-	stage->lua = LuaInit();
 	stage->sqlite = SQLiteInit("./slot1.db");
+	stage->lua = LuaInit();
 	
-	rv_PersistInit();
-
 	tile = rv_TileNew("test", "overworld.png", clip, stage);
 
 	rv_CrewNew(rv_PLAYER);
