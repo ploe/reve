@@ -1,5 +1,6 @@
 #include "reve.h"
 
+
 static char *PERSIST_SCHEMA =
 	"CREATE TABLE IF NOT EXISTS %s ("
 		"id INT PRIMARY KEY, " 
@@ -7,10 +8,10 @@ static char *PERSIST_SCHEMA =
 		"value TEXT"
 	")";
 
-static rv_Bool PersistExec(sqlite3 *db, rv_Text query) {
+static rv_Bool PersistExecCallback(sqlite3 *db, const char *table, rv_Text query, SQLiteCallback callback) {
 	int rc;
 	char *err = NULL;
-	rc = sqlite3_exec(db, query, NULL, 0, &err);
+	rc = sqlite3_exec(db, query, callback, (void *) table, &err);
 	if (rc != SQLITE_OK) {
 		fprintf(stderr, "%s\n", query);
 
@@ -20,6 +21,8 @@ static rv_Bool PersistExec(sqlite3 *db, rv_Text query) {
 
 	return rv_YES;
 }
+
+#define PersistExec(db, query) PersistExecCallback(db, NULL, query, NULL)
 
 rv_Bool rv_PersistCreateTable(sqlite3 *db, const char *table) {
 	rv_Text schema = rv_TextNew(PERSIST_SCHEMA, table);
@@ -44,7 +47,8 @@ rv_Bool rv_PersistSavePair(sqlite3 *db, const char *table, const char *key, cons
 		rv_TextFree(insert);
 		rv_Panic(-1, sqlite3_errmsg(db));
 	}
-
+	
+	sqlite3_finalize(stmt);
 	rv_TextFree(insert);
 	return rv_YES;
 }
@@ -54,5 +58,24 @@ rv_Bool rv_PersistClearTable(sqlite3 *db, const char *table) {
 	rv_Text drop = rv_TextNew(query, table);
 	PersistExec(db, drop);
 	rv_TextFree(drop);
+	return rv_YES;
+}
+
+int rv_PERSIST_MARSHAL(void *table, int argc, char **value, char **key) {
+	int i;
+	for(i=0; i < argc; i++){
+		fprintf(stderr, "%s=%s, ", key[i], value[i] ?  : "NULL");
+	}
+
+	return 0;
+}
+
+rv_Bool rv_PersistSelectPairs(sqlite3 *db, const char *table, SQLiteCallback callback) {
+	const char *query = "SELECT key, value FROM %s";
+	rv_Text select = rv_TextNew(query, table);
+
+	PersistExecCallback(db, table, select, callback);
+
+	rv_TextFree(select);
 	return rv_YES;
 }

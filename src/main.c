@@ -15,6 +15,7 @@ int main(int argc, char *argv[]) {
 	rv_PersistCreateTable(db, "myke");
 	rv_PersistSavePair(db, "myke", "key", "value");
 	rv_PersistSavePair(db, "myke", "imagine", "this");
+	rv_PersistSelectPairs(db, "myke", rv_PERSIST_MARSHAL);
 
 	while (rv_CrewRoll()) continue;
 
