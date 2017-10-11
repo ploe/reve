@@ -93,10 +93,6 @@ static rv_CrewStatus UpdateStage(rv_Crew *c) {
 	}
 
 	SDL_RenderClear(stage->renderer);
-	SDL_Rect r;
-	r.w= r.h = 64;
-	r.x = r.y = 0;
-	static double i = 0;
 	rv_TileDraw(tile, stage);
 	SDL_RenderPresent(stage->renderer);
 

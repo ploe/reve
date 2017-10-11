@@ -30,34 +30,64 @@ int LuaSave(lua_State *L) {
 	return 1;
 }
 
+int PERSIST_LOAD(void *L, int argc, char **value, char **unused) {
+	enum {
+		DATA = -3
+	};
+
+	int i;
+	for(i = 0; i < argc; i++) lua_pushstring(L, value[i]);
+	
+	lua_settable(L, DATA);
+
+	return 0;
+}
+
+int LuaLoad(lua_State *L) {
+	enum {
+		NAME = 1
+	};
+
+	sqlite3 *db = rv_StageGetSQLite();
+
+	if (lua_isstring(L, NAME)) {
+		const char *table = lua_tostring(L, NAME);
+		lua_newtable(L);
+
+		rv_PersistSelectPairs(db, table, L, PERSIST_LOAD);
+	}
+
+	return 1;
+}
+
 rv_Bool rv_PersistLuaBindings(lua_State *L) {
 	lua_register(L, "Save", LuaSave);
+	lua_register(L, "Load", LuaLoad);
 
 	return rv_YES;
 }
 
-static rv_Bool PersistExecCallback(sqlite3 *db, const char *table, rv_Text query, SQLiteCallback callback) {
+static rv_Bool PersistExecCallback(sqlite3 *db, const char *table, rv_Text query, void *probe, SQLiteCallback callback) {
 	int rc;
 	char *err = NULL;
-	rc = sqlite3_exec(db, query, callback, (void *) table, &err);
-	if (rc != SQLITE_OK) {
-		fprintf(stderr, "%s\n", query);
 
+	rc = sqlite3_exec(db, query, callback, probe, &err);
+	if (rc != SQLITE_OK) {
+		fprintf(stderr, "%s\n%s\n", query, err);
 		rv_TextFree(query);
-		rv_Panic(-1, err);
+		rv_Panic(-1, "PersistExecCallback failed: killing reve.");
 	}
 
 	return rv_YES;
 }
 
-#define PersistExec(db, query) PersistExecCallback(db, NULL, query, NULL)
+#define PersistExec(db, query) PersistExecCallback(db, NULL, query, NULL, NULL)
 
 static char *PERSIST_SCHEMA =
 	"CREATE TABLE IF NOT EXISTS %s ("
 		"key TEXT PRIMARY KEY, "
 		"value TEXT"
 	")";
-
 rv_Bool rv_PersistCreateTable(sqlite3 *db, const char *table) {
 	rv_Text schema = rv_TextNew(PERSIST_SCHEMA, table);
 	PersistExec(db, schema);
@@ -104,11 +134,11 @@ int rv_PERSIST_MARSHAL(void *table, int argc, char **value, char **key) {
 	return 0;
 }
 
-rv_Bool rv_PersistSelectPairs(sqlite3 *db, const char *table, SQLiteCallback callback) {
+rv_Bool rv_PersistSelectPairs(sqlite3 *db, const char *table, void *probe, SQLiteCallback callback) {
 	const char *query = "SELECT key, value FROM '%s'";
 	rv_Text select = rv_TextNew(query, table);
 
-	PersistExecCallback(db, table, select, callback);
+	PersistExecCallback(db, table, select, probe, callback);
 
 	rv_TextFree(select);
 	return rv_YES;

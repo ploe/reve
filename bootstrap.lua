@@ -1,3 +1,6 @@
+player = Load("player")
+print(player.name, player.age, player.game)
+
 result = Save("player", {
   name="Miffy",
   age="29",
@@ -7,3 +10,6 @@ result = Save("player", {
 })
 
 print(result)
+
+
+
