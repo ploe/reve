@@ -114,29 +114,29 @@ void render() {
 }
 
 const char *FRAGMENT_SRC =
-    "#version 330 core \n"
-    "in vec3 Color; \n"
-    "in vec2 Texcoord \n;"
-    "out vec4 outColor; \n"
-    "uniform sampler2D tex;"
-    "void main() \n"
-    "{ \n "
-        " outColor = texture(tex, Texcoord);\n"
-    "}";
+	"#version 330 core \n"
+	"in vec3 Color; \n"
+	"in vec2 Texcoord \n;"
+	"out vec4 outColor; \n"
+	"uniform sampler2D tex;"
+	"void main() \n"
+	"{ \n "
+		" outColor = texture(tex, Texcoord) * vec4(Color, 1.0);\n"
+	"}";
 
 const char *VERTEX_SRC =
 	"#version 330 core \n"
 	"in vec2 position; \n"
 	"in vec3 color; \n"
-"in vec2 texcoord; \n"
-"out vec3 Color; \n"
-"out vec2 Texcoord; \n"
-"void main() \n"
-"{ \n"
-	 "Color = color; \n"
-	 "Texcoord = texcoord; \n"
-	 "gl_Position = vec4(position, 0.0, 1.0); \n"
-"} \n";
+	"in vec2 texcoord; \n"
+	"out vec3 Color; \n"
+	"out vec2 Texcoord; \n"
+	"void main() \n"
+	"{ \n"
+		 "Color = color; \n"
+	 	"Texcoord = texcoord; \n"
+	 	"gl_Position = vec4(position, 0.0, 1.0); \n"
+	"} \n";
 
 GLuint CompileShader(const char *src, GLenum type) {
 	GLuint shader = glCreateShader(type);
@@ -193,20 +193,6 @@ int main(int argc, char *argv[]) {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
 
-	GLuint tex;
-	glGenTextures(1, &tex);
-
-	glBindTexture(GL_TEXTURE_2D, tex);
-
-	SDL_Surface *surface = IMG_Load("./myke.png");
-	ConvertSurfaceToTexImage2D(surface);
-	SDL_FreeSurface(surface);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
  	// Create and compile the vertex shader
 	GLuint vertexShader = CompileShader(VERTEX_SRC, GL_VERTEX_SHADER);
 
@@ -226,13 +212,30 @@ int main(int argc, char *argv[]) {
 	glEnableVertexAttribArray(posAttrib);
 	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, (sizeof(float) * 7), 0);
 
+
 	GLint colAttrib = glGetAttribLocation(shaderProgram, "color");
 	glEnableVertexAttribArray(colAttrib);
 	glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 7, (void*) (2 * sizeof(float)));
 
-	GLint texAttrib = glGetAttribLocation(shaderProgram, "texcoords");
+	GLint texAttrib = glGetAttribLocation(shaderProgram, "texcoord");
 	glEnableVertexAttribArray(texAttrib);
 	glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), (void*)(5 * sizeof(GLfloat)));
+
+
+	GLuint tex;
+	glGenTextures(1, &tex);
+
+	glBindTexture(GL_TEXTURE_2D, tex);
+
+	SDL_Surface *surface = IMG_Load("./myke.png");
+	ConvertSurfaceToTexImage2D(surface);
+	SDL_FreeSurface(surface);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
 
 //	GLint uniColor = glGetUniformLocation(shaderProgram, "triangleColor");
 
@@ -254,6 +257,16 @@ int main(int argc, char *argv[]) {
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		render();
 	}
+
+	glDeleteTextures(1, &tex);
+	glDeleteProgram(shaderProgram);
+	glDeleteShader(fragmentShader);
+    	glDeleteShader(vertexShader);
+
+	glDeleteBuffers(1, &ebo);
+    	glDeleteBuffers(1, &vbo);
+
+    	glDeleteVertexArrays(1, &vao);
 
 	SDL_GL_DeleteContext(context);
 	SDL_Quit();
