@@ -142,9 +142,10 @@ const char *VERTEX_SRC =
 
 const char *FRAGMENT_SRC =
 	"#version 150 core "
+	"uniform vec3 triangleColor; "
 	"out vec4 outColor; "
 	"void main() { "
-		"outColor = vec4(1.0, 1.0, 1.0, 1.0); "
+		"outColor = vec4(triangleColor, 1.0); "
 	"}";
 
 GLuint CompileShader(const char *src, GLenum type) {
@@ -208,10 +209,8 @@ int main(int argc, char *argv[]) {
 	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(posAttrib);
 
-	fprintf(stderr, "%u\n", vbo);
+	GLint uniColor = glGetUniformLocation(shaderProgram, "triangleColor");
 	
-	
-
 	SDL_Event event;
 	while (event.type != SDL_QUIT) {
 		
@@ -220,6 +219,14 @@ int main(int argc, char *argv[]) {
 		}
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
        		glClear(GL_COLOR_BUFFER_BIT);
+
+		static float alpha = -0.1f;
+		static float fade = 0.01;
+		if ((alpha >= 1.0f) || (alpha <= -1.0f)) fade = -fade;
+		alpha += fade;
+		fprintf(stderr, "alpha:%f;fade%f\n", alpha, fade);
+
+		glUniform3f(uniColor, 0.f, alpha, 0.f);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		render();
 	}
