@@ -133,20 +133,25 @@ void render() {
 }
 
 const char *VERTEX_SRC =
-	"#version 150 core \n"
+	"#version 330 core \n"
 	"in vec2 position; \n"
+	"in vec3 color; \n"
+	"out vec3 Color; \n"
 	"void main() \n"
 	"{ \n"
+
+		"Color = color; \n"
 		"gl_Position = vec4(position, 0.0, 1.0); \n"
 	"}";
 
 const char *FRAGMENT_SRC =
-	"#version 150 core \n"
-	"uniform vec3 triangleColor; \n"
-	"out vec4 outColor; \n"
-	"void main() { \n"
-		"outColor = vec4(triangleColor, 1.0); \n"
-	"}";
+		"#version 330 core \n"
+		"in vec3 Color; \n"
+		"out vec4 outColor; \n"
+		"void main() \n"
+		"{ \n"
+				"outColor = vec4(Color, 1.0); \n"
+		"}";
 
 GLuint CompileShader(const char *src, GLenum type) {
 	GLuint shader = glCreateShader(type);
@@ -181,9 +186,9 @@ int main(int argc, char *argv[]) {
 	glGenBuffers(1, &vbo);
 
 	float vertices[] = {
-		0.0f,  0.5f,
-		0.5f, -0.5f,
-		-0.5f, -0.5f
+		0.0f,  0.5f, 1.0f, 0.0f, 0.0f,
+		0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+		-0.5f, -0.5f, 0.0f, 0.0f, 1.0f
 	};
 
 	// copy data in to it
@@ -206,10 +211,14 @@ int main(int argc, char *argv[]) {
 
 	// specify layout of vertex data
 	GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
-	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(posAttrib);
+	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, (sizeof(float) * 5), 0);
 
-	GLint uniColor = glGetUniformLocation(shaderProgram, "triangleColor");
+	GLint colAttrib = glGetAttribLocation(shaderProgram, "color");
+	glEnableVertexAttribArray(colAttrib);
+	glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*) (2 * sizeof(float)));
+
+//	GLint uniColor = glGetUniformLocation(shaderProgram, "triangleColor");
 
 	SDL_Event event;
 	while (event.type != SDL_QUIT) {
@@ -217,15 +226,15 @@ int main(int argc, char *argv[]) {
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT) return 0;
 		}
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		static float alpha = -0.1f;
-		static float fade = 0.01;
-		if ((alpha >= 1.0f) || (alpha <= -1.0f)) fade = -fade;
-		alpha += fade;
+//		static float alpha = -0.1f;
+//		static float fade = 0.01;
+//		if ((alpha >= 1.0f) || (alpha <= -1.0f)) fade = -fade;
+//		alpha += fade;
 
-		glUniform3f(uniColor, 0.f, alpha, 0.f);
+//		glUniform3f(uniColor, 0.f, alpha, 0.f);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		render();
 	}
