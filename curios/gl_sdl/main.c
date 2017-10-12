@@ -24,7 +24,7 @@ void panic(const char *msg) {
 
 int ConvertSurfaceToTexImage2D(SDL_Surface *surface) {
 	GLint internal;
-	GLenum format; 
+	GLenum format;
 	GLenum type;
 
 	switch (surface->format->format) {
@@ -91,9 +91,9 @@ int init() {
 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-	
+
 	window = SDL_CreateWindow("opengl test", 0, 0, 800, 600, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 
 	if (!window)  panic(SDL_GetError());
@@ -108,7 +108,7 @@ int init() {
 	glewInit();
 //	initGL();
 
-	
+
 //	surface = IMG_Load("./myke.png");
 //	glGenTextures(1, &tex);
 //	glBindTexture(GL_TEXTURE_2D, tex);
@@ -133,25 +133,25 @@ void render() {
 }
 
 const char *VERTEX_SRC =
-	"#version 150 core "
-	"in vec2 position; "
-	"void main() "
-	"{ "
-		"gl_Position = vec4(position, 0.0, 1.0); "
+	"#version 150 core \n"
+	"in vec2 position; \n"
+	"void main() \n"
+	"{ \n"
+		"gl_Position = vec4(position, 0.0, 1.0); \n"
 	"}";
 
 const char *FRAGMENT_SRC =
-	"#version 150 core "
-	"uniform vec3 triangleColor; "
-	"out vec4 outColor; "
-	"void main() { "
-		"outColor = vec4(triangleColor, 1.0); "
+	"#version 150 core \n"
+	"uniform vec3 triangleColor; \n"
+	"out vec4 outColor; \n"
+	"void main() { \n"
+		"outColor = vec4(triangleColor, 1.0); \n"
 	"}";
 
 GLuint CompileShader(const char *src, GLenum type) {
 	GLuint shader = glCreateShader(type);
    	glShaderSource(shader, 1, &src, NULL);
-    	glCompileShader(shader);	
+	glCompileShader(shader);
 
 	GLint status;
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
@@ -191,9 +191,9 @@ int main(int argc, char *argv[]) {
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
  	// Create and compile the vertex shader
-    	GLuint vertexShader = CompileShader(VERTEX_SRC, GL_VERTEX_SHADER);
- 
-    	// Create and compile the fragment shader
+	GLuint vertexShader = CompileShader(VERTEX_SRC, GL_VERTEX_SHADER);
+
+	// Create and compile the fragment shader
 	GLuint fragmentShader = CompileShader(FRAGMENT_SRC, GL_FRAGMENT_SHADER);
 
 	// link vertex and fragment shader in to a shader program
@@ -203,28 +203,27 @@ int main(int argc, char *argv[]) {
 	glBindFragDataLocation(shaderProgram, 0, "outColor");
 	glLinkProgram(shaderProgram);
 	glUseProgram(shaderProgram);
-	
+
 	// specify layout of vertex data
 	GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
 	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(posAttrib);
 
 	GLint uniColor = glGetUniformLocation(shaderProgram, "triangleColor");
-	
+
 	SDL_Event event;
 	while (event.type != SDL_QUIT) {
-		
+
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT) return 0;
 		}
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-       		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT);
 
 		static float alpha = -0.1f;
 		static float fade = 0.01;
 		if ((alpha >= 1.0f) || (alpha <= -1.0f)) fade = -fade;
 		alpha += fade;
-		fprintf(stderr, "alpha:%f;fade%f\n", alpha, fade);
 
 		glUniform3f(uniColor, 0.f, alpha, 0.f);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
