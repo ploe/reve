@@ -145,13 +145,13 @@ const char *VERTEX_SRC =
 	"}";
 
 const char *FRAGMENT_SRC =
-		"#version 330 core \n"
-		"in vec3 Color; \n"
-		"out vec4 outColor; \n"
-		"void main() \n"
-		"{ \n"
-				"outColor = vec4(Color, 1.0); \n"
-		"}";
+	"#version 330 core \n"
+	"in vec3 Color; \n"
+	"out vec4 outColor; \n"
+	"void main() \n"
+	"{ \n"
+		"outColor = vec4(Color, 1.0); \n"
+	"}";
 
 GLuint CompileShader(const char *src, GLenum type) {
 	GLuint shader = glCreateShader(type);
@@ -186,14 +186,26 @@ int main(int argc, char *argv[]) {
 	glGenBuffers(1, &vbo);
 
 	float vertices[] = {
-		0.0f,  0.5f, 1.0f, 0.0f, 0.0f,
-		0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-		-0.5f, -0.5f, 0.0f, 0.0f, 1.0f
+		-0.5f,  0.5f, 1.0f, 0.0f, 0.0f, // Top-left
+     		0.5f,  0.5f, 0.0f, 1.0f, 0.0f, // Top-right
+     		0.5f, -0.5f, 0.0f, 0.0f, 1.0f, // Bottom-right
+    		-0.5f, -0.5f, 1.0f, 1.0f, 1.0f  // Bottom-left
 	};
 
 	// copy data in to it
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	GLuint ebo;
+	glGenBuffers(1, &ebo);
+
+	GLuint elements[] = {
+		0, 1, 2,
+		2, 3, 0
+	};
+	
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);	
 
  	// Create and compile the vertex shader
 	GLuint vertexShader = CompileShader(VERTEX_SRC, GL_VERTEX_SHADER);
@@ -235,7 +247,7 @@ int main(int argc, char *argv[]) {
 //		alpha += fade;
 
 //		glUniform3f(uniColor, 0.f, alpha, 0.f);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		render();
 	}
 
