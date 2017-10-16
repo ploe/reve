@@ -49,13 +49,13 @@ enum {
 void rv_Panic(int i, const char *prompt);
 
 //Our libs
-#include "Crew.h"
-#include "Player.h"
-#include "Stage.h"
-#include "Texture.h"
-#include "Layer.h"
-#include "Persist.h"
-#include "Text.h"
-#include "Lua.h"
+#include "rv/Crew.h"
+#include "rv/Player.h"
+#include "rv/Stage.h"
+#include "rv/Texture.h"
+#include "rv/Layer.h"
+#include "rv/Persist.h"
+#include "rv/Text.h"
+#include "rv/Lua.h"
 
 #endif
