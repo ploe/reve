@@ -64,7 +64,7 @@ rv_Bool rv_PersistLuaBindings() {
 	rv_LuaBind (
 		"Save", LuaSave,
 		"Load", LuaLoad,
-		NULL, NULL
+		rv_NO, rv_NO
 	);
 
 	return rv_YES;

@@ -9,7 +9,7 @@ lua_State *LuaInit() {
 	luaL_openlibs(L);
 	rv_PersistLuaBindings();
 
-	rv_Bool bootstrap = rv_LuaImport(L, "bootstrap");
+	rv_Bool bootstrap = rv_LuaImport("bootstrap");
 	if (!bootstrap) {
 		lua_close(L);
 		rv_Panic(rv_ELUA, "cannot open bootstrap: No such file or directory");
@@ -39,7 +39,6 @@ rv_Bool rv_LuaBind(const char *key, lua_CFunction func, ...) {
 			lua_setfield(L, TABLE_SET, key);
 			lua_setglobal(L, "rv");
 		}
-
 		else rv_Panic(rv_ELUA, "namespace 'rv' is already set in Lua state.");
 
 		key = (const char *) va_arg(vl, const char *);
@@ -51,7 +50,7 @@ rv_Bool rv_LuaBind(const char *key, lua_CFunction func, ...) {
 	return rv_YES;
 }
 
-rv_Bool rv_LuaImport(lua_State *L, const char *slug) {
+rv_Bool rv_LuaImport(const char *slug) {
 	const char *extensions[] = {
 		".luac",
 		".lua",
