@@ -1,6 +1,6 @@
 #include "reve.h"
 
-rv_Text ValueText(lua_State *L, int type, int index) {
+static rv_Text ValueText(lua_State *L, int type, int index) {
 	rv_Text value = NULL;
 
 	switch (type) {
@@ -20,8 +20,61 @@ rv_Text ValueText(lua_State *L, int type, int index) {
 	return value;
 }
 
+static rv_Bool PersistExecCallback(sqlite3 *db, const char *table, rv_Text query, void *probe, SQLiteCallback callback) {
+	int rc;
+	char *err = NULL;
+
+	rc = sqlite3_exec(db, query, callback, probe, &err);
+	if (rc != SQLITE_OK) {
+		fprintf(stderr, "%s\n%s\n", query, err);
+		rv_TextFree(query);
+		rv_Panic(rv_ESQL, "PersistExecCallback failed: killing reve.");
+	}
+
+	return rv_YES;
+}
+
+#define PersistExec(db, query) PersistExecCallback(db, NULL, query, NULL, NULL)
+
+static char *PERSIST_SCHEMA =
+	"CREATE TABLE IF NOT EXISTS %s ("
+		"key TEXT PRIMARY KEY, "
+		"value TEXT, "
+		"type UNSIGNED INT"
+	")";
+
+static rv_Bool rv_PersistCreateTable(sqlite3 *db, const char *table) {
+	rv_Text schema = rv_TextNew(PERSIST_SCHEMA, table);
+	PersistExec(db, schema);
+	rv_TextFree(schema);
+
+	return rv_YES;
+}
+
+static rv_Bool rv_PersistSavePair(sqlite3 *db, const char *table, const char *key, const char *value, int type) {
+	const char *query = "INSERT OR REPLACE INTO '%s' (key, value, type) VALUES(?, ?, ?)";
+	rv_Text insert = rv_TextNew(query, table);
+
+	sqlite3_stmt *stmt;
+	sqlite3_prepare_v2(db, insert, -1, &stmt, NULL);
+	sqlite3_bind_text(stmt, 1, key, -1, SQLITE_STATIC);
+	sqlite3_bind_text(stmt, 2, value, -1, SQLITE_STATIC);
+	sqlite3_bind_int(stmt, 3, type);
+
+	int rc;
+	rc = sqlite3_step(stmt);
+	if (rc != SQLITE_DONE) {
+		rv_TextFree(insert);
+		rv_Panic(rv_ESQL, sqlite3_errmsg(db));
+	}
+
+	sqlite3_finalize(stmt);
+	rv_TextFree(insert);
+	return rv_YES;
+}
+
 /* LuaSave(string, table) - Saves the Lua table with the name string */
-int LuaSave(lua_State *L) {
+static int LuaSave(lua_State *L) {
 	enum {
 		NAME = 1,
 		DATA = 2,
@@ -53,6 +106,15 @@ int LuaSave(lua_State *L) {
 	return 1;
 }
 
+static rv_Bool rv_PersistSelectPairs(sqlite3 *db, const char *table, void *probe, SQLiteCallback callback) {
+	const char *query = "SELECT key, value, type FROM '%s'";
+	rv_Text select = rv_TextNew(query, table);
+
+	PersistExecCallback(db, table, select, probe, callback);
+
+	rv_TextFree(select);
+	return rv_YES;
+}
 
 int PERSIST_LOAD(void *L, int argc, char **column, char **unused) {
 	enum {
@@ -87,13 +149,13 @@ int PERSIST_LOAD(void *L, int argc, char **column, char **unused) {
 			break;
 		}
 	}
-	
+
 	lua_settable(L, DATA);
 
 	return 0;
 }
 
-int LuaLoad(lua_State *L) {
+static int LuaLoad(lua_State *L) {
 	enum {
 		NAME = 1
 	};
@@ -120,60 +182,7 @@ rv_Bool rv_PersistLuaBindings() {
 	return rv_YES;
 }
 
-static rv_Bool PersistExecCallback(sqlite3 *db, const char *table, rv_Text query, void *probe, SQLiteCallback callback) {
-	int rc;
-	char *err = NULL;
-
-	rc = sqlite3_exec(db, query, callback, probe, &err);
-	if (rc != SQLITE_OK) {
-		fprintf(stderr, "%s\n%s\n", query, err);
-		rv_TextFree(query);
-		rv_Panic(rv_ESQL, "PersistExecCallback failed: killing reve.");
-	}
-
-	return rv_YES;
-}
-
-#define PersistExec(db, query) PersistExecCallback(db, NULL, query, NULL, NULL)
-
-static char *PERSIST_SCHEMA =
-	"CREATE TABLE IF NOT EXISTS %s ("
-		"key TEXT PRIMARY KEY, "
-		"value TEXT, "
-		"type UNSIGNED INT"
-	")";
-
-rv_Bool rv_PersistCreateTable(sqlite3 *db, const char *table) {
-	rv_Text schema = rv_TextNew(PERSIST_SCHEMA, table);
-	PersistExec(db, schema);
-	rv_TextFree(schema);
-
-	return rv_YES;
-}
-
-rv_Bool rv_PersistSavePair(sqlite3 *db, const char *table, const char *key, const char *value, int type) {
-	const char *query = "INSERT OR REPLACE INTO '%s' (key, value, type) VALUES(?, ?, ?)";
-	rv_Text insert = rv_TextNew(query, table);
-
-	sqlite3_stmt *stmt;
-	sqlite3_prepare_v2(db, insert, -1, &stmt, NULL);
-	sqlite3_bind_text(stmt, 1, key, -1, SQLITE_STATIC);
-	sqlite3_bind_text(stmt, 2, value, -1, SQLITE_STATIC);
-	sqlite3_bind_int(stmt, 3, type);
-
-	int rc;
-	rc = sqlite3_step(stmt);
-	if (rc != SQLITE_DONE) {
-		rv_TextFree(insert);
-		rv_Panic(rv_ESQL, sqlite3_errmsg(db));
-	}
-
-	sqlite3_finalize(stmt);
-	rv_TextFree(insert);
-	return rv_YES;
-}
-
-rv_Bool rv_PersistClearTable(sqlite3 *db, const char *table) {
+static rv_Bool rv_PersistClearTable(sqlite3 *db, const char *table) {
 	const char *query = "DROP TABLE IF EXISTS '%s'";
 	rv_Text drop = rv_TextNew(query, table);
 	PersistExec(db, drop);
@@ -181,21 +190,11 @@ rv_Bool rv_PersistClearTable(sqlite3 *db, const char *table) {
 	return rv_YES;
 }
 
-int rv_PERSIST_MARSHAL(void *table, int argc, char **value, char **key) {
+static int rv_PERSIST_MARSHAL(void *table, int argc, char **value, char **key) {
 	int i;
 	for(i=0; i < argc; i++){
 		fprintf(stderr, "%s=%s, ", key[i], value[i] ?  : "NULL");
 	}
 
 	return 0;
-}
-
-rv_Bool rv_PersistSelectPairs(sqlite3 *db, const char *table, void *probe, SQLiteCallback callback) {
-	const char *query = "SELECT key, value, type FROM '%s'";
-	rv_Text select = rv_TextNew(query, table);
-
-	PersistExecCallback(db, table, select, probe, callback);
-
-	rv_TextFree(select);
-	return rv_YES;
 }

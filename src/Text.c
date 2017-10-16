@@ -17,7 +17,6 @@ rv_Text rv_TextNew(const char *format, ...) {
 	return t;
 }
 
-
 rv_Text rv_TextFree(rv_Text t) {
 	if(t) free(t);
 	return NULL;
