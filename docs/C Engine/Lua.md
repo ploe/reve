@@ -1,6 +1,6 @@
 # Lua
 
-Lua is where the `L` the `lua_State` for the engine lives. It is defined in
+Lua is where `L` the `lua_State` for the engine lives. It is defined in
 [rv/Lua.h](/include/rv/Lua.h) and implemented in [Lua.c](/src/Lua.c).
 
 Lua is going to be used across the app for various configuration tasks, from
@@ -10,13 +10,21 @@ elements of context creation. These are still works in progress but this
 documentation will be amended to elucidate on these functionalities once they
 are complete.
 
+## bootstrap
+
+`bootstrap` is a script the engine loads on startup. It will be used for setting
+up elements of the engine that have been delegated to Lua, since certain tasks
+will be much more flexible scripted.
+
+It is part of the engine rather than part of the game the engine will run.
+
 ## Functions
 
-## lua_State \*rv_LuaInit()
+### lua_State \*rv_LuaInit()
 
 Creates the global `lua_State` `L` which is a static variable in [Lua.c](/src/Lua.c).  
 
-## rv_Bool rv_LuaImport(const char \*file)
+### rv_Bool rv_LuaImport(const char \*file)
 
 Loads `file` and runs it on the `lua_State` `L`. If loading suceeds it returns a
 `rv_Boolean` `rv_YES` and if it fails it returns `rv_NO`.
