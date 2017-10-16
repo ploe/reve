@@ -20,6 +20,30 @@ lua_State *LuaInit() {
 	return L;
 }
 
+rv_Bool rv_StageLuaBind(const char *key, lua_CFunction func) {
+	enum {
+		TABLE_GET = -1,
+		TABLE_SET = -2,
+		NIL = 1,
+	};
+
+	lua_State *L = rv_StageGetLua();
+	lua_getglobal(L, "rv");
+	if (lua_isnil(L, TABLE_GET)) {
+		lua_pop(L, NIL);
+		lua_newtable(L);
+	}
+
+	if (lua_istable(L, TABLE_GET)) {
+		lua_pushcfunction(L, func);
+		lua_setfield(L, TABLE_SET, key);
+		lua_setglobal(L, "rv");
+	}
+	else rv_Panic(-1, "rv namespace is already set to something else in Lua?");
+
+	return rv_YES;
+}
+
 rv_Bool rv_StageLuaImport(lua_State *L, const char *slug) {
 	const char *extensions[] = {
 		".luac",

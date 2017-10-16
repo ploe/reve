@@ -14,6 +14,7 @@ rv_CrewStatus rv_STAGE(rv_Crew *c);
 
 rv_Bool rv_StageLuaImport(lua_State *L, const char *file);
 lua_State *rv_StageGetLua();
+rv_Bool rv_StageLuaBind(const char *key, lua_CFunction func);
 sqlite3 *rv_StageGetSQLite();
 
 #endif
