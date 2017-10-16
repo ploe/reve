@@ -4,6 +4,7 @@
 // Their libs
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 
 #include "murp.h"
 #include "hashish.h"
@@ -16,19 +17,26 @@
 #include <SDL_image.h>
 #endif
 
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
+
+#include <sqlite3.h>
 
 /*	app ExitCodes	*/
 typedef int rv_ExitCode;
 enum {
 	rv_EOK = 0,
-	_rv_ERRORS = 900,
+	_rv_ERRORS = 999,
 	rv_EOALLOC,
 	rv_EOCREW_ALLOC,
 	rv_EOSTAGE_INIT,
+	rv_ELUA,
+	rv_ESQL,
 	_rv_ENDOFERRORS
 };
 
-/* 	Fetch the appropriate method and call it on the Crew 
+/* 	Fetch the appropriate method and call it on the Crew
 	This kind of compacts the calling. */
 
 typedef int rv_Bool;
@@ -39,17 +47,15 @@ enum {
 
 
 void rv_Panic(int i, const char *prompt);
-char *rv_Format(const char *format, ...);
-char *rv_GetHTTP(char *url);
-
-mp_Atomizer rv_PrintAtom(mp_Atom atom, void *p);
-mp_Atomizer rv_CountElems(mp_Atom atom, void *probe);
 
 //Our libs
-#include "Crew.h"
-#include "Player.h"
-#include "Stage.h"
-#include "Texture.h"
-#include "Layer.h"
+#include "rv/Crew.h"
+#include "rv/Player.h"
+#include "rv/Stage.h"
+#include "rv/Texture.h"
+#include "rv/Layer.h"
+#include "rv/Persist.h"
+#include "rv/Text.h"
+#include "rv/Lua.h"
 
 #endif

@@ -6,8 +6,10 @@ typedef struct {
 	SDL_Window *window;
 	SDL_Surface *surface;
 	SDL_Renderer *renderer;
+	sqlite3 *sqlite;
 } rv_Stage;
 
 rv_CrewStatus rv_STAGE(rv_Crew *c);
+sqlite3 *rv_StageGetSQLite();
 
 #endif

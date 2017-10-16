@@ -19,7 +19,7 @@ enum {
 typedef struct rv_Crew {
 	char *tag;
 	void *attr;
-	void *type, *update, *destroy, *marshal;
+	void *type, *update, *destroy;
 	rv_CrewStatus status;	
 	struct rv_Crew *prev, *next;
 } rv_Crew;
@@ -32,7 +32,6 @@ extern const char *rv_CrewStatusStr[] ;
 
 rv_Crew *rv_CrewNew(rv_Updater type);
 rv_Bool rv_CrewRoll();
-char *rv_CrewMarshal();
 void rv_CrewRollCall();
 rv_CrewStatus rv_CrewCall(rv_Crew *c, rv_Updater func);
 void rv_CrewPurge();
