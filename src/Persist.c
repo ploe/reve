@@ -54,13 +54,39 @@ int LuaSave(lua_State *L) {
 }
 
 
-int PERSIST_LOAD(void *L, int argc, char **value, char **unused) {
+int PERSIST_LOAD(void *L, int argc, char **column, char **unused) {
 	enum {
-		DATA = -3
+		// Lua indices
+		DATA = -3,
+
+		// SQL indices
+		KEY = 0,
+		VALUE = 1,
+		TYPE = 2
 	};
 
-	int i;
-	for(i = 0; i < argc; i++) lua_pushstring(L, value[i]);
+	const char *key = column[KEY];
+	const char *value = column[VALUE];
+	int type = atoi(column[TYPE]);
+
+	lua_pushstring(L, key);
+	switch (type) {
+		case LUA_TNUMBER: {
+			lua_pushnumber(L, atof(value));
+			break;
+		}
+
+		case LUA_TBOOLEAN: {
+			rv_Bool b = (strcmp(value, "true") == 0) ? rv_YES : rv_NO;
+			lua_pushboolean(L, b);
+			break;
+		}
+
+		case LUA_TSTRING: {
+			lua_pushstring(L, value);
+			break;
+		}
+	}
 	
 	lua_settable(L, DATA);
 
@@ -165,7 +191,7 @@ int rv_PERSIST_MARSHAL(void *table, int argc, char **value, char **key) {
 }
 
 rv_Bool rv_PersistSelectPairs(sqlite3 *db, const char *table, void *probe, SQLiteCallback callback) {
-	const char *query = "SELECT key, value FROM '%s'";
+	const char *query = "SELECT key, value, type FROM '%s'";
 	rv_Text select = rv_TextNew(query, table);
 
 	PersistExecCallback(db, table, select, probe, callback);
