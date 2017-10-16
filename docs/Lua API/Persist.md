@@ -31,6 +31,8 @@ result = rv.Save("player", {
   terrible=false,
   pi=3.14
 })
+
+print("Saved?", result)
 ```
 
 ## rv.Load(name)
