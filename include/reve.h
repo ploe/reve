@@ -4,6 +4,7 @@
 // Their libs
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 
 #include "murp.h"
 #include "hashish.h"

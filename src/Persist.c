@@ -60,12 +60,12 @@ int LuaLoad(lua_State *L) {
 	return 1;
 }
 
-rv_Bool rv_PersistLuaBindings(lua_State *L) {
-//	lua_register(L, "Save", LuaSave);
-//	lua_register(L, "Load", LuaLoad);
-
-	rv_LuaBind (L, "Save", LuaSave);
-	rv_LuaBind(L, "Load", LuaLoad) ;
+rv_Bool rv_PersistLuaBindings() {
+	rv_LuaBind (
+		"Save", LuaSave,
+		"Load", LuaLoad,
+		NULL, NULL
+	);
 
 	return rv_YES;
 }
@@ -91,6 +91,7 @@ static char *PERSIST_SCHEMA =
 		"key TEXT PRIMARY KEY, "
 		"value TEXT"
 	")";
+
 rv_Bool rv_PersistCreateTable(sqlite3 *db, const char *table) {
 	rv_Text schema = rv_TextNew(PERSIST_SCHEMA, table);
 	PersistExec(db, schema);
