@@ -2,7 +2,7 @@
 
 static lua_State *L = NULL;
 
-lua_State *LuaInit() {
+lua_State *rv_LuaInit() {
 	L = luaL_newstate();
 	if (!L) rv_Panic(rv_ELUA, "LuaInit failed.");
 
@@ -45,7 +45,7 @@ rv_Bool rv_LuaBind(const char *key, lua_CFunction func, ...) {
 		func = va_arg(vl, void *);
 	}
 	va_end(vl);
-	
+
 
 	return rv_YES;
 }
@@ -85,7 +85,7 @@ rv_Bool rv_LuaDestroy() {
 	if (L) {
 		lua_close(L);
 		L = NULL;
-		return rv_YES;	
+		return rv_YES;
 	}
 
 	return rv_NO;

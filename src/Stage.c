@@ -86,8 +86,8 @@ rv_CrewStatus rv_STAGE(rv_Crew *c) {
 	SDL_Rect clip = {0, 0, 100, 100};
 
 	stage->sqlite = SQLiteInit("./slot1.db");
-	LuaInit();
-	
+	rv_LuaInit();
+
 	tile = rv_TileNew("test", "overworld.png", clip, stage);
 
 	rv_CrewNew(rv_PLAYER);
