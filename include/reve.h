@@ -32,6 +32,7 @@ enum {
 	rv_EOCREW_ALLOC,
 	rv_EOSTAGE_INIT,
 	rv_ELUA,
+	rv_ESQL,
 	_rv_ENDOFERRORS
 };
 

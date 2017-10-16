@@ -1,5 +1,25 @@
 #include "reve.h"
 
+rv_Text ValueText(lua_State *L, int type, int index) {
+	rv_Text value = NULL;
+
+	switch (type) {
+		case LUA_TNUMBER:
+			value = rv_TextNew("%f", lua_tonumber(L, index));
+		break;
+
+		case LUA_TBOOLEAN:
+			value = rv_TextNew("%s", lua_toboolean(L, index) ? "true" : "false");
+		break;
+
+		case LUA_TSTRING:
+			value = rv_TextNew("%s", lua_tostring(L, index));
+		break;
+	}
+
+	return value;
+}
+
 /* LuaSave(string, table) - Saves the Lua table with the name string */
 int LuaSave(lua_State *L) {
 	enum {
@@ -17,9 +37,12 @@ int LuaSave(lua_State *L) {
 
 		lua_pushnil(L);
 		while(lua_next(L, DATA)) {
-			const char *key = lua_tostring(L, KEY), *value = lua_tostring(L, VALUE);
+			const char *key = lua_tostring(L, KEY);
+			int type = lua_type(L, VALUE);
+			rv_Text value = ValueText(L, type, VALUE);
 
-			rv_PersistSavePair(db, table, key, value);
+			rv_PersistSavePair(db, table, key, value, type);
+			value = rv_TextFree(value);
 			lua_pop(L, 1);
 		}
 
@@ -29,6 +52,7 @@ int LuaSave(lua_State *L) {
 
 	return 1;
 }
+
 
 int PERSIST_LOAD(void *L, int argc, char **value, char **unused) {
 	enum {
@@ -78,7 +102,7 @@ static rv_Bool PersistExecCallback(sqlite3 *db, const char *table, rv_Text query
 	if (rc != SQLITE_OK) {
 		fprintf(stderr, "%s\n%s\n", query, err);
 		rv_TextFree(query);
-		rv_Panic(-1, "PersistExecCallback failed: killing reve.");
+		rv_Panic(rv_ESQL, "PersistExecCallback failed: killing reve.");
 	}
 
 	return rv_YES;
@@ -89,7 +113,8 @@ static rv_Bool PersistExecCallback(sqlite3 *db, const char *table, rv_Text query
 static char *PERSIST_SCHEMA =
 	"CREATE TABLE IF NOT EXISTS %s ("
 		"key TEXT PRIMARY KEY, "
-		"value TEXT"
+		"value TEXT, "
+		"type UNSIGNED INT"
 	")";
 
 rv_Bool rv_PersistCreateTable(sqlite3 *db, const char *table) {
@@ -100,20 +125,21 @@ rv_Bool rv_PersistCreateTable(sqlite3 *db, const char *table) {
 	return rv_YES;
 }
 
-rv_Bool rv_PersistSavePair(sqlite3 *db, const char *table, const char *key, const char *value) {
-	const char *query = "INSERT OR REPLACE INTO '%s' (key, value) VALUES(?, ?)";
+rv_Bool rv_PersistSavePair(sqlite3 *db, const char *table, const char *key, const char *value, int type) {
+	const char *query = "INSERT OR REPLACE INTO '%s' (key, value, type) VALUES(?, ?, ?)";
 	rv_Text insert = rv_TextNew(query, table);
 
 	sqlite3_stmt *stmt;
 	sqlite3_prepare_v2(db, insert, -1, &stmt, NULL);
 	sqlite3_bind_text(stmt, 1, key, -1, SQLITE_STATIC);
 	sqlite3_bind_text(stmt, 2, value, -1, SQLITE_STATIC);
+	sqlite3_bind_int(stmt, 3, type);
 
 	int rc;
 	rc = sqlite3_step(stmt);
 	if (rc != SQLITE_DONE) {
 		rv_TextFree(insert);
-		rv_Panic(-1, sqlite3_errmsg(db));
+		rv_Panic(rv_ESQL, sqlite3_errmsg(db));
 	}
 
 	sqlite3_finalize(stmt);
