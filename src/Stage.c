@@ -20,14 +20,13 @@ lua_State *LuaInit() {
 	return L;
 }
 
-rv_Bool rv_StageLuaBind(const char *key, lua_CFunction func) {
+rv_Bool rv_StageLuaBind(lua_State *L, const char *key, lua_CFunction func) {
 	enum {
 		TABLE_GET = -1,
 		TABLE_SET = -2,
 		NIL = 1,
 	};
 
-	lua_State *L = rv_StageGetLua();
 	lua_getglobal(L, "rv");
 	if (lua_isnil(L, TABLE_GET)) {
 		lua_pop(L, NIL);

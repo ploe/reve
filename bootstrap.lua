@@ -1,10 +1,10 @@
-player = Load("player")
+player = rv.Load("player")
 print(player.name, player.age, player.game)
 
-result = Save("player", {
-  name="Miffy",
-  age="29",
-  game="wuh!",
+result = rv.Save("player", {
+  name="Puyo",
+  age="30",
+  game="this one",
   uhhh="yes",
   eeehuh = "no",
 })
