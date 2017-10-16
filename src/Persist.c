@@ -64,8 +64,8 @@ rv_Bool rv_PersistLuaBindings(lua_State *L) {
 //	lua_register(L, "Save", LuaSave);
 //	lua_register(L, "Load", LuaLoad);
 
-	rv_StageLuaBind (L, "Save", LuaSave);
-	rv_StageLuaBind(L, "Load", LuaLoad) ;
+	rv_LuaBind (L, "Save", LuaSave);
+	rv_LuaBind(L, "Load", LuaLoad) ;
 
 	return rv_YES;
 }

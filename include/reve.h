@@ -16,11 +16,11 @@
 #include <SDL_image.h>
 #endif
 
-#include "lua.h"
-#include "lauxlib.h"
-#include "lualib.h"
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
 
-#include "sqlite3.h"
+#include <sqlite3.h>
 
 /*	app ExitCodes	*/
 typedef int rv_ExitCode;
@@ -30,6 +30,7 @@ enum {
 	rv_EOALLOC,
 	rv_EOCREW_ALLOC,
 	rv_EOSTAGE_INIT,
+	rv_ELUA,
 	_rv_ENDOFERRORS
 };
 
@@ -53,5 +54,6 @@ void rv_Panic(int i, const char *prompt);
 #include "Layer.h"
 #include "Persist.h"
 #include "Text.h"
+#include "Lua.h"
 
 #endif

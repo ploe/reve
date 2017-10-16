@@ -2,78 +2,6 @@
 
 static rv_Stage *stage = NULL;
 
-lua_State *LuaInit() {
-	lua_State *L = NULL;
-
-	L = luaL_newstate();
-	if (!L) rv_Panic(-1, "LuaInit failed.");
-
-	luaL_openlibs(L);
-	rv_PersistLuaBindings();
-
-	rv_Bool bootstrap = rv_StageLuaImport(L, "bootstrap");
-	if (!bootstrap) {
-		lua_close(L);
-		rv_Panic(-1, "cannot open bootstrap: No such file or directory");
-	}
-
-	return L;
-}
-
-rv_Bool rv_StageLuaBind(lua_State *L, const char *key, lua_CFunction func) {
-	enum {
-		TABLE_GET = -1,
-		TABLE_SET = -2,
-		NIL = 1,
-	};
-
-	lua_getglobal(L, "rv");
-	if (lua_isnil(L, TABLE_GET)) {
-		lua_pop(L, NIL);
-		lua_newtable(L);
-	}
-
-	if (lua_istable(L, TABLE_GET)) {
-		lua_pushcfunction(L, func);
-		lua_setfield(L, TABLE_SET, key);
-		lua_setglobal(L, "rv");
-	}
-	else rv_Panic(-1, "rv namespace is already set to something else in Lua?");
-
-	return rv_YES;
-}
-
-rv_Bool rv_StageLuaImport(lua_State *L, const char *slug) {
-	const char *extensions[] = {
-		".luac",
-		".lua",
-		"",
-		NULL,
-	};
-
-	const char **ext = NULL;
-	for (ext = extensions; *ext != NULL; ext++) {
-		rv_Text file = rv_TextNew("./%s%s", slug, *ext);
-		puts(file);
-		if (luaL_loadfile(L, file) || lua_pcall(L, 0, 0, 0)) {
-			file = rv_TextFree(file);
-			fprintf(stderr, "%s\n", lua_tostring(L, -1));
-			lua_pop(L, 1);
-			continue;
-		}
-		else {
-			file = rv_TextFree(file);
-			break;
-		}
-	}
-
-	return (*ext != NULL) ? rv_YES : rv_NO;
-}
-
-lua_State *rv_StageGetLua() {
-	return stage->lua;
-}
-
 sqlite3 *SQLiteInit(const char *path) {
 	sqlite3 *db;
 	int rc;
@@ -94,7 +22,7 @@ sqlite3 *rv_StageGetSQLite() {
 /* Destroy function for the STAGE - the return value isn't important */
 static rv_CrewStatus DestroyStage(rv_Crew *c) {
 	rv_Stage *stage = (rv_Stage *) c->attr;
-	lua_close(stage->lua);
+	rv_LuaDestroy();
 	sqlite3_close(stage->sqlite);
 
 	SDL_DestroyRenderer(stage->renderer);
@@ -158,7 +86,7 @@ rv_CrewStatus rv_STAGE(rv_Crew *c) {
 	SDL_Rect clip = {0, 0, 100, 100};
 
 	stage->sqlite = SQLiteInit("./slot1.db");
-	stage->lua = LuaInit();
+	LuaInit();
 	
 	tile = rv_TileNew("test", "overworld.png", clip, stage);
 
