@@ -219,17 +219,19 @@ int main(int argc, char *argv[]) {
 	GLuint texture = TextureLoad("./myke.png");
 	SDL_Event event;
 	while (event.type != SDL_QUIT) {
+		vertices[0] += 0.01f;
+		vertices[7] += 0.01f;
+		vertices[14] += 0.01f;
+		vertices[21] += 0.01f;
+
+//		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
 
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT) return 0;
 		}
 
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 		glClear(GL_COLOR_BUFFER_BIT);
-
-//		static float alpha = -0.1f;
-//		static float fade = 0.01;
-//		if ((alpha >= 1.0f) || (alpha <= -1.0f)) fade = -fade;
-//		alpha += fade;
 
 //		glUniform3f(uniColor, 0.f, alpha, 0.f);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
