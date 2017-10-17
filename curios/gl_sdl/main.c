@@ -1,6 +1,7 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
-#include <png.h>
+#include <IL/il.h>
+#include <IL/ilu.h>
 
 #ifdef __linux
 #include <SDL2/SDL.h>
@@ -26,16 +27,15 @@ GLuint TextureLoad(const char *path) {
 	ilGenImages(1, &img);
 	ilBindImage(img);
 
-	if (ilLoadImage(path)) panic("image not loaded!");
+	ilLoadImage(path);
 
-	if (!ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE)) return panic("image not converted");
+	if (!ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE)) panic("image not converted");
 
 	GLuint texture;
-	glGenTexture(1, &texture);
+	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
-
-	GLuint width = ilGetInteger(IL_IMAGE_WIDTH), GLuint height = ilGetInteger(IL_IMAGE_HEIGHT);
-	GLuint *data = ilGetData();
+	GLuint width = ilGetInteger(IL_IMAGE_WIDTH), height = ilGetInteger(IL_IMAGE_HEIGHT);
+	GLuint *pixels = (GLuint *) ilGetData();
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
@@ -44,12 +44,9 @@ GLuint TextureLoad(const char *path) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-
-	glBindTexture( GL_TEXTURE_2D, NULL );
-
-	if(error != GL_NO_ERROR) panic("error loading texture");
-
 	return texture;
+
+	return 0;
 }
 
 int initGL() {
@@ -95,7 +92,12 @@ int init() {
 	if (SDL_GL_SetSwapInterval(1) < 0) panic(SDL_GetError());
 
 	glewExperimental = GL_TRUE;
+
 	glewInit();
+	GLenum error;
+	for (error = glGetError(); error != GL_NO_ERROR; error = glGetError()) {
+		if (error != GL_INVALID_ENUM) panic(gluErrorString(error));
+	}
 
 	return -1;
 }
@@ -151,6 +153,8 @@ GLuint CompileShader(const char *src, GLenum type) {
 
 int main(int argc, char *argv[]) {
 	init();
+	ilInit();
+	iluInit();
 
 	// create vertex array object
 	GLuint vao;
