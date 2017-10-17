@@ -4,7 +4,6 @@
 	If allocation fails we break out of the program. We can assume a Crew
 	member is imperative to the flow of the program.
 */
-static char *MarshalDefault(rv_Crew *c);
 
 static rv_Crew *top = NULL;
 rv_Crew *rv_CrewNew(rv_Updater type) {
@@ -19,7 +18,6 @@ rv_Crew *rv_CrewNew(rv_Updater type) {
 			c->type = type;
 		}
 
-		c->marshal = MarshalDefault;
 	}
 	else rv_Panic(rv_EOCREW_ALLOC, "rv_CrewNew: calloc failed to return anything. Out of memory?");
 	return c;
@@ -99,78 +97,6 @@ void rv_CrewRollCall() {
 	else fputs("rv_CrewRollCall: Pretty vacant...\n", stderr);
 }
 
-/*	sticks the whole Crew in a JSON structure
-	this string will need freeing!	*/
-char *rv_CrewMarshal() {
-	rv_Crew *c;
-	char *dst = calloc(1, sizeof(char));
-	for (c = top; c != NULL; c = c->next) {
-		rv_Marshaller marshal = c->marshal;
-		if (marshal) {
-			char *str = marshal(c);
-			char *tmp = rv_Format("%s%s", dst, str);
-
-			free(dst);
-			dst = tmp;
-			free(str);
-		}
-	}
-
-	char *tmp = rv_Format("{%s}", dst);
-	free(dst);
-
-	return tmp;
-}
-
 rv_CrewStatus rv_CrewCall(rv_Crew *c, rv_Updater func) {
 	return func(c);
 }
-
-/*	proof of concept Marshaller - returns length of 
-	JSON'd string	*/
-static char *MarshalDefault(rv_Crew *c) {
-	return rv_Format("\"%s\":{\"status\":\"%s\"},", 
-		c->tag, 
-		rv_CrewStatusStr[c->status]
-	);	
-}
-
-/* 	must remember to free the marshalled char 	*/
-/* The Fab Four - MATTHEW, MARK, LUKE and RINGO 
-	Dummy Crew members for testing with */
-static rv_CrewStatus MATTHEW(rv_Crew *c) {
-	c->destroy = c->update = MATTHEW;
-	c->tag = "Matthew";
-	c->marshal = MarshalDefault;
-	puts("hello");
-	return rv_PAUSE;
-}
-
-static rv_CrewStatus MARK(rv_Crew *c) {
-	c->destroy = c->update = MARK;
-	c->tag = "Mark";
-	c->marshal = MarshalDefault;
-	puts("hey hey");
-	return rv_CUT;
-}
-
-static rv_CrewStatus LUKE(rv_Crew *c) {
-	c->destroy = c->update = LUKE;
-	c->tag = "Luke";
-	c->marshal = MarshalDefault;
-	puts("hi");
-	return rv_LIVE;
-}
-
-static rv_CrewStatus RINGO(rv_Crew *c) {
-	c->destroy = c->update = RINGO;
-	c->tag = "Ringo";
-	c->marshal = MarshalDefault;
-	puts("HULLO THUR");
-	static int i = 0;
-	i++;
-	if (i > 10) return rv_EXIT;
-	else return rv_LIVE;
-}
-
-

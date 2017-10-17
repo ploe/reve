@@ -1,8 +1,30 @@
 #include "reve.h"
 
+static rv_Stage *stage = NULL;
+
+sqlite3 *SQLiteInit(const char *path) {
+	sqlite3 *db;
+	int rc;
+
+	rc = sqlite3_open(path, &db);
+	if (rc != SQLITE_OK) {
+		rv_Panic(-1, sqlite3_errmsg(db));
+		sqlite3_close(db);
+	}
+
+	return db;
+}
+
+sqlite3 *rv_StageGetSQLite() {
+	return stage->sqlite;
+}
+
 /* Destroy function for the STAGE - the return value isn't important */
 static rv_CrewStatus DestroyStage(rv_Crew *c) {
 	rv_Stage *stage = (rv_Stage *) c->attr;
+	rv_LuaDestroy();
+	sqlite3_close(stage->sqlite);
+
 	SDL_DestroyRenderer(stage->renderer);
 	SDL_DestroyWindow(stage->window);
 	SDL_Quit();
@@ -10,15 +32,6 @@ static rv_CrewStatus DestroyStage(rv_Crew *c) {
 	return rv_CUT;
 }
 
-/* 	must remember to free the marshalled char 	*/
-static char *MarshalStage(rv_Crew *c) {
-	return rv_Format("\"%s\":{status:\"%s\"}",
-		c->tag,
-		rv_CrewStatusStr[c->status]
-	);
-}
-
-rv_Texture *chomp = NULL;
 rv_Tile *tile = NULL;
 
 /* Update method for the STAGE - called every frame */
@@ -31,11 +44,6 @@ static rv_CrewStatus UpdateStage(rv_Crew *c) {
 	}
 
 	SDL_RenderClear(stage->renderer);
-	SDL_Rect r;
-	r.w= r.h = 64;
-	r.x = r.y = 0;
-	static double i = 0;
-	SDL_RenderCopyEx(stage->renderer, chomp->texture, NULL, &r, i+=0.01, NULL, SDL_FLIP_NONE);
 	rv_TileDraw(tile, stage);
 	SDL_RenderPresent(stage->renderer);
 
@@ -61,11 +69,10 @@ rv_CrewStatus rv_STAGE(rv_Crew *c) {
 	c->type = rv_STAGE;
 	c->destroy = DestroyStage;
 	c->update = UpdateStage;
-	c->marshal = MarshalStage;	
 
 	if (SDL_Init( SDL_INIT_VIDEO ) < 0) rv_Panic(rv_EOSTAGE_INIT, "rv_STAGE: SDL_Init Failed");
 
-	rv_Stage *stage = calloc(1, sizeof(rv_Stage));
+	stage = calloc(1, sizeof(rv_Stage));
 	if (!stage) rv_Panic(rv_EOSTAGE_INIT, "rv_STAGE: Could not allocate stage struct.");
 	c->attr = stage;
 
@@ -76,8 +83,10 @@ rv_CrewStatus rv_STAGE(rv_Crew *c) {
 	SDL_SetRenderDrawColor(stage->renderer, 255, 0, 128, 255);
 
 	IMG_Init(IMG_INIT_PNG);
-	chomp = rv_TextureNew("./Chomp_Rock-scaled.PNG", stage->renderer);
 	SDL_Rect clip = {0, 0, 100, 100};
+
+	stage->sqlite = SQLiteInit("./slot1.db");
+	rv_LuaInit();
 
 	tile = rv_TileNew("test", "overworld.png", clip, stage);
 
