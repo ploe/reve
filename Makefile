@@ -4,6 +4,11 @@ SDL_FLAGS := `pkg-config sdl2 SDL2_image --cflags --libs`
 GL_FLAGS := `pkg-config ILU glew --cflags --libs`
 LUA_FLAGS := `pkg-config lua-5.2 --cflags --libs`
 SQLITE_FLAGS := `pkg-config sqlite3 --cflags --libs`
+UNAME := $(shell uname -s)
+
+ifeq ($(UNAME), Darwin)
+	GL_FLAGS := -framework OpenGL $(GL_FLAGS)
+endif
 
 all:
-	$(compile) $(src) -o ./rv  -framework OpenGL $(SDL_FLAGS) $(GL_FLAGS) $(LUA_FLAGS) $(SQLITE_FLAGS)
+	$(compile) $(src) -o ./rv  $(SDL_FLAGS) $(GL_FLAGS) $(LUA_FLAGS) $(SQLITE_FLAGS)
