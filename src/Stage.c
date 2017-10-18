@@ -74,7 +74,7 @@ static rv_Bool WindowInit(rv_Stage *stage) {
 	glewInit();
 	GLenum error;
 	for (error = glGetError(); error != GL_NO_ERROR; error = glGetError()) {
-		if (error != GL_INVALID_ENUM) rv_Panic(rv_EGL,gluErrorString(error));
+		if (error != GL_INVALID_ENUM) rv_Panic(rv_EGL, "error on glew init");
 	}
 
 	return rv_YES;

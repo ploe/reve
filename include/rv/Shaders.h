@@ -1,5 +1,5 @@
-#ifndef _REVE_MAIN_H
-#define _REVE_MAIN_H
+#ifndef _REVE_SHADERS_H
+#define _REVE_SHADERS_H
 
 GLuint rv_ShaderLoad(const char *path, GLenum type);
 
