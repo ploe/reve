@@ -25,7 +25,7 @@ static rv_CrewStatus DestroyStage(rv_Crew *c) {
 	rv_LuaDestroy();
 	sqlite3_close(stage->sqlite);
 
-	SDL_DestroyRenderer(stage->renderer);
+	SDL_GL_DeleteContext(stage->context);
 	SDL_DestroyWindow(stage->window);
 	SDL_Quit();
 
@@ -42,25 +42,39 @@ static rv_CrewStatus UpdateStage(rv_Crew *c) {
 	while (SDL_PollEvent(&e) != 0) {
 		if (e.type == SDL_QUIT) return rv_EXIT;
 	}
-
-	SDL_RenderClear(stage->renderer);
-	rv_TileDraw(tile, stage);
-	SDL_RenderPresent(stage->renderer);
-
+	
+	glClearColor(0.f, 1.f, 0.f, 1.f);
+	glClear(GL_COLOR_BUFFER_BIT);
+	SDL_GL_SwapWindow(stage->window);
 
 	return rv_LIVE;
 }
 
-SDL_Texture *rv_LoadTexture(char *src, SDL_Renderer *renderer) {
-	SDL_Surface *surface = IMG_Load(src);
-	if (!surface) rv_Panic(-1, IMG_GetError());
+static rv_Bool WindowInit(rv_Stage *stage) {
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
-	SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-	if (!texture) rv_Panic(-1, SDL_GetError());
+	stage->window = SDL_CreateWindow("reve", 0, 0, 800, 600, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 
-	SDL_FreeSurface(surface);
+	if (!stage->window)  rv_Panic(rv_EGL,SDL_GetError());
 
-	return texture;
+	stage->context = SDL_GL_CreateContext(stage->window);
+
+	if (!stage->context) rv_Panic(rv_EGL,SDL_GetError());
+
+	if (SDL_GL_SetSwapInterval(1) < 0) rv_Panic(rv_EGL,SDL_GetError());
+
+	glewExperimental = GL_TRUE;
+
+	glewInit();
+	GLenum error;
+	for (error = glGetError(); error != GL_NO_ERROR; error = glGetError()) {
+		if (error != GL_INVALID_ENUM) rv_Panic(rv_EGL,gluErrorString(error));
+	}
+
+	return rv_YES;
 }
 
 /* The init function/type for the STAGE */
@@ -76,21 +90,10 @@ rv_CrewStatus rv_STAGE(rv_Crew *c) {
 	if (!stage) rv_Panic(rv_EOSTAGE_INIT, "rv_STAGE: Could not allocate stage struct.");
 	c->attr = stage;
 
-	stage->window = SDL_CreateWindow("reve", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 360, SDL_WINDOW_SHOWN);
-	if (!stage->window) rv_Panic(rv_EOSTAGE_INIT, "rv_STAGE: Failed to create STAGE window.");
-
-	stage->renderer = SDL_CreateRenderer(stage->window, -1, SDL_RENDERER_ACCELERATED);
-	SDL_SetRenderDrawColor(stage->renderer, 255, 0, 128, 255);
-
-	IMG_Init(IMG_INIT_PNG);
-	SDL_Rect clip = {0, 0, 100, 100};
+	WindowInit(stage);
 
 	stage->sqlite = SQLiteInit("./slot1.db");
 	rv_LuaInit();
-
-	tile = rv_TileNew("test", "overworld.png", clip, stage);
-
-	rv_CrewNew(rv_PLAYER);
 
 	return 0;
 }
