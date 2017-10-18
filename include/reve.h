@@ -36,6 +36,7 @@ enum {
 	rv_EOALLOC,
 	rv_EOCREW_ALLOC,
 	rv_EOSTAGE_INIT,
+	rv_ELOAD,
 	rv_EGL,
 	rv_ELUA,
 	rv_ESQL,

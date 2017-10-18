@@ -131,26 +131,6 @@ const char *VERTEX_SRC =
 	 	"gl_Position = vec4(position, 0.0, 1.0); \n"
 	"} \n";
 
-GLuint CompileShader(const char *src, GLenum type) {
-	GLuint shader = glCreateShader(type);
-   	glShaderSource(shader, 1, &src, NULL);
-	glCompileShader(shader);
-
-	GLint status;
-	glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-
-	if (!status) {
-		const GLuint LENGTH = 1024;
-
-		char msg[LENGTH];
-		glGetShaderInfoLog(shader, LENGTH, NULL, msg);
-		fprintf(stderr, "%s\n", src);
-		panic(msg);
-	}
-
-	return shader;
-}
-
 int main(int argc, char *argv[]) {
 	init();
 	ilInit();
