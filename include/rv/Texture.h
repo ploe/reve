@@ -3,9 +3,9 @@
 
 typedef struct {
 	unsigned int rc;
-	SDL_Texture *texture;
+	GLuint texture;
 } rv_Texture;
 
-void *rv_TextureNew(char *src, SDL_Renderer *renderer);
+GLuint rv_TextureNew(const char *path);
 
 #endif

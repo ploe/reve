@@ -21,26 +21,27 @@ static void *TextureDrop(ish_Map *textures, char *key, void *value) {
 	return texture;
 }
 
-void *rv_TextureNew(char *src, SDL_Renderer *renderer) {
-	if (!textures) textures = ish_MapNew();
-	rv_Texture *texture = (rv_Texture *) ish_MapGet(textures, src);
-	
-	if (!texture) {
-		texture = calloc(1, sizeof(rv_Texture));
-		if (!texture) rv_Panic(-1, "rv_Texture failed to allocate");
-		texture->rc = 1;
+GLuint rv_TextureLoad(const char *path) {
+	ILuint img = 0;
+	ilGenImages(1, &img);
+	ilBindImage(img);
 
-		SDL_Surface *surface = IMG_Load(src);
-		if (!surface) rv_Panic(-1, IMG_GetError());
+	ilLoadImage(path);
 
-		texture->texture = SDL_CreateTextureFromSurface(renderer, surface);
-		if (!texture) rv_Panic(-1, SDL_GetError());
+	if (!ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE)) rv_Panic(rv_ETEXTURE, "image not converted");
 
-		SDL_FreeSurface(surface);
+	GLuint texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	GLuint width = ilGetInteger(IL_IMAGE_WIDTH), height = ilGetInteger(IL_IMAGE_HEIGHT);
+	GLuint *pixels = (GLuint *) ilGetData();
 
-		ish_MapSetWithAllocators(textures, src, texture, TextureGet, TextureDrop);
-	}
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 	return texture;
 }
-

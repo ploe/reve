@@ -1,7 +1,6 @@
 #version 330 core
 
-in vec2 Texcoord;
-	
+in vec2 Texcoord;	
 out vec4 outColor;
 
 void main() 

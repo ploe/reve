@@ -107,10 +107,10 @@ rv_CrewStatus rv_STAGE(rv_Crew *c) {
 	glGenBuffers(1, &vbo);
 
 	float vertices[] = {
-		-0.5f,  0.5f,
-     		0.5f,  0.5f,
-     		0.5f, -0.5f,
-    		-0.5f, -0.5f
+		-0.5f,  0.5f, 0.0f, 0.0f,
+     		0.5f,  0.5f, 1.0f, 0.0f,
+     		0.5f, -0.5f, 1.0f, 1.0f,
+    		-0.5f, -0.5f, 1.0f, 0.f
 	};
 
 	// copy data in to it
@@ -129,11 +129,11 @@ rv_CrewStatus rv_STAGE(rv_Crew *c) {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
 
  	// Create and compile the vertex shader
+	GLuint vertexShader = rv_ShaderLoad("./shaders/default.vert", GL_VERTEX_SHADER);
 
 	// Create and compile the fragment shader
 	GLuint fragmentShader = rv_ShaderLoad("./shaders/default.frag", GL_FRAGMENT_SHADER);
 
-	GLuint vertexShader = rv_ShaderLoad("./shaders/default.vert", GL_VERTEX_SHADER);
 	// link vertex and fragment shader in to a shader program
 	GLuint shaderProgram = glCreateProgram();
 	glAttachShader(shaderProgram, vertexShader);
@@ -145,7 +145,12 @@ rv_CrewStatus rv_STAGE(rv_Crew *c) {
 	// specify layout of vertex data
 	GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
 	glEnableVertexAttribArray(posAttrib);
-	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, (sizeof(float) * 2), 0);
+	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, (sizeof(float) * 4), 0);
+
+	GLint texcoord = glGetAttribLocation(shaderProgram, "texcoord");
+	glEnableVertexAttribArray(texcoord);
+	glVertexAttribPointer(texcoord, 2, GL_FLOAT, GL_FALSE, (sizeof(float) * 4), sizeof(float) * 2);
+
 
 	return 0;
 }
