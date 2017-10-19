@@ -110,7 +110,7 @@ rv_CrewStatus rv_STAGE(rv_Crew *c) {
 		-0.5f,  0.5f, 0.0f, 0.0f,
      		0.5f,  0.5f, 1.0f, 0.0f,
      		0.5f, -0.5f, 1.0f, 1.0f,
-    		-0.5f, -0.5f, 1.0f, 0.f
+    		-0.5f, -0.5f, 0.0f, 1.0f
 	};
 
 	// copy data in to it
@@ -151,6 +151,7 @@ rv_CrewStatus rv_STAGE(rv_Crew *c) {
 	glEnableVertexAttribArray(texcoord);
 	glVertexAttribPointer(texcoord, 2, GL_FLOAT, GL_FALSE, (sizeof(float) * 4), sizeof(float) * 2);
 
+	rv_TextureLoad("./myke.png");
 
 	return 0;
 }
