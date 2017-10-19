@@ -6,6 +6,6 @@ typedef struct {
 	GLuint texture;
 } rv_Texture;
 
-GLuint rv_TextureNew(const char *path);
+GLuint rv_TextureLoad(const char *path);
 
 #endif

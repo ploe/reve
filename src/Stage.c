@@ -42,7 +42,7 @@ static rv_CrewStatus UpdateStage(rv_Crew *c) {
 	while (SDL_PollEvent(&e) != 0) {
 		if (e.type == SDL_QUIT) return rv_EXIT;
 	}
-	
+
 	glClearColor(0.f, 1.f, 0.f, 1.f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -59,7 +59,7 @@ static rv_Bool WindowInit(rv_Stage *stage) {
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
-	stage->window = SDL_CreateWindow("reve", 0, 0, 800, 600, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+	stage->window = SDL_CreateWindow("reve", 0, 0, rv_STAGE_WIDTH, rv_STAGE_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 
 	if (!stage->window)  rv_Panic(rv_EGL,SDL_GetError());
 
@@ -80,13 +80,19 @@ static rv_Bool WindowInit(rv_Stage *stage) {
 	return rv_YES;
 }
 
+typedef struct {
+	GLfloat x, y, z, u, v;
+} rv_Vectors;
+
+#define rv_VERTEX_OFFSET 0
+#define rv_TEXTURE_OFFSET ((const void *) (sizeof(GLfloat) * 3))
+
 /* The init function/type for the STAGE */
 rv_CrewStatus rv_STAGE(rv_Crew *c) {
 	c->tag = "STAGE";
 	c->type = rv_STAGE;
 	c->destroy = DestroyStage;
 	c->update = UpdateStage;
-
 
 	stage = calloc(1, sizeof(rv_Stage));
 	if (!stage) rv_Panic(rv_EOSTAGE_INIT, "rv_STAGE: Could not allocate stage struct.");
@@ -107,10 +113,10 @@ rv_CrewStatus rv_STAGE(rv_Crew *c) {
 	glGenBuffers(1, &vbo);
 
 	float vertices[] = {
-		-0.5f,  0.5f, 0.0f, 0.0f,
-     		0.5f,  0.5f, 1.0f, 0.0f,
-     		0.5f, -0.5f, 1.0f, 1.0f,
-    		-0.5f, -0.5f, 0.0f, 1.0f
+		-0.5f,  0.5f, 0.0f, 0.0f, 0.0f,
+     		0.5f,  0.5f, 0.0f, 1.0f, 0.0f,
+     		0.5f, -0.5f, 0.0f, 1.0f, 1.0f,
+    		-0.5f, -0.5f, 0.0f, 0.0f, 1.0f
 	};
 
 	// copy data in to it
@@ -145,13 +151,15 @@ rv_CrewStatus rv_STAGE(rv_Crew *c) {
 	// specify layout of vertex data
 	GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
 	glEnableVertexAttribArray(posAttrib);
-	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, (sizeof(float) * 4), 0);
+	glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, sizeof(rv_Vectors), rv_VERTEX_OFFSET);
 
 	GLint texcoord = glGetAttribLocation(shaderProgram, "texcoord");
 	glEnableVertexAttribArray(texcoord);
-	glVertexAttribPointer(texcoord, 2, GL_FLOAT, GL_FALSE, (sizeof(float) * 4), sizeof(float) * 2);
+	glVertexAttribPointer(texcoord, 2, GL_FLOAT, GL_FALSE, sizeof(rv_Vectors), rv_TEXTURE_OFFSET);
 
 	rv_TextureLoad("./myke.png");
 
-	return 0;
+	rv_CrewNew(rv_PLAYER);
+
+	return rv_LIVE;
 }

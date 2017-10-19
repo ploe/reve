@@ -56,6 +56,9 @@ enum {
 
 void rv_Panic(int i, const char *prompt);
 
+#define rv_STAGE_WIDTH 1080
+#define rv_STAGE_HEIGHT 720
+
 //Our libs
 #include "rv/Crew.h"
 #include "rv/Player.h"
