@@ -108,13 +108,13 @@ rv_CrewStatus rv_ACTORS(rv_Crew *c) {
 	glGenBuffers(1, &vbo);
 
 	rv_Quad quad;
-	quad.vectors[rv_QTOPLEFT] = (rv_Vectors) {0.5f,  0.5f, 0.0f, 0.0f, 0.0f};
+	quad.vectors[rv_QTOPLEFT] = (rv_Vectors) {-0.5f,  0.5f, 0.0f, 0.0f, 0.0f};
 	quad.vectors[rv_QTOPRIGHT] = (rv_Vectors) {0.5f,  0.5f, 0.0f, 1.0f, 0.0f};
 	quad.vectors[rv_QBOTTOMRIGHT] = (rv_Vectors) {0.5f, -0.5f, 0.0f, 1.0f, 1.0f};
 	quad.vectors[rv_QBOTTOMLEFT] = (rv_Vectors) {-0.5f, -0.5f, 0.0f, 0.0f, 1.0f};
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(quad), quad, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(quad), &quad, GL_STATIC_DRAW);
 
 	glGenBuffers(1, &ebo);
 
