@@ -84,8 +84,52 @@ typedef struct {
 	GLfloat x, y, z, u, v;
 } rv_Vectors;
 
+typedef struct {
+	rv_Vectors vectors[4];
+} rv_Quad;
+#define rv_QTOPLEFT 0
+#define rv_QTOPRIGHT 1
+#define rv_QBOTTOMRIGHT 2
+#define rv_QBOTTOMLEFT 3
+
 #define rv_VERTEX_OFFSET 0
 #define rv_TEXTURE_OFFSET ((const void *) (sizeof(GLfloat) * 3))
+
+typedef struct {
+	float x, y, z, w, h, u, v;
+	const char *texture;
+} rv_Actor;
+
+static rv_Actor *actors = NULL;
+static GLuint vbo;
+static GLuint ebo;
+
+rv_CrewStatus rv_ACTORS(rv_Crew *c) {
+	glGenBuffers(1, &vbo);
+
+	rv_Quad quad;
+	quad.vectors[rv_QTOPLEFT] = (rv_Vectors) {0.5f,  0.5f, 0.0f, 0.0f, 0.0f};
+	quad.vectors[rv_QTOPRIGHT] = (rv_Vectors) {0.5f,  0.5f, 0.0f, 1.0f, 0.0f};
+	quad.vectors[rv_QBOTTOMRIGHT] = (rv_Vectors) {0.5f, -0.5f, 0.0f, 1.0f, 1.0f};
+	quad.vectors[rv_QBOTTOMLEFT] = (rv_Vectors) {-0.5f, -0.5f, 0.0f, 0.0f, 1.0f};
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(quad), quad, GL_STATIC_DRAW);
+
+	glGenBuffers(1, &ebo);
+
+	GLuint elements[] = {
+		0, 1, 2,
+		2, 3, 0
+	};
+
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
+
+	return rv_CUT;
+}
+
 
 /* The init function/type for the STAGE */
 rv_CrewStatus rv_STAGE(rv_Crew *c) {
@@ -108,32 +152,9 @@ rv_CrewStatus rv_STAGE(rv_Crew *c) {
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
-	// create vertex buffer object
-	GLuint vbo;
-	glGenBuffers(1, &vbo);
 
-	float vertices[] = {
-		-0.5f,  0.5f, 0.0f, 0.0f, 0.0f,
-     		0.5f,  0.5f, 0.0f, 1.0f, 0.0f,
-     		0.5f, -0.5f, 0.0f, 1.0f, 1.0f,
-    		-0.5f, -0.5f, 0.0f, 0.0f, 1.0f
-	};
-
-	// copy data in to it
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	GLuint ebo;
-	glGenBuffers(1, &ebo);
-
-	GLuint elements[] = {
-		0, 1, 2,
-		2, 3, 0
-	};
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
-
+	rv_CrewNew(rv_ACTORS);
+	
  	// Create and compile the vertex shader
 	GLuint vertexShader = rv_ShaderLoad("./shaders/default.vert", GL_VERTEX_SHADER);
 
