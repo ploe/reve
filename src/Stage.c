@@ -100,18 +100,64 @@ typedef struct {
 	const char *texture;
 } rv_Actor;
 
-static rv_Actor *actors = NULL;
+static ish_Map *actors = NULL;
 static GLuint vbo;
 static GLuint ebo;
 
-rv_CrewStatus rv_ACTORS(rv_Crew *c) {
-	glGenBuffers(1, &vbo);
+rv_CrewStatus rv_ActorsUpdate(rv_Crew *c) {
+	return rv_LIVE;
+}
 
+
+rv_Quad rv_ActorQuad(rv_Actor *a) {
 	rv_Quad quad;
-	quad.vectors[rv_QTOPLEFT] = (rv_Vectors) {-0.5f,  0.5f, 0.0f, 0.0f, 0.0f};
-	quad.vectors[rv_QTOPRIGHT] = (rv_Vectors) {0.5f,  0.5f, 0.0f, 1.0f, 0.0f};
-	quad.vectors[rv_QBOTTOMRIGHT] = (rv_Vectors) {0.5f, -0.5f, 0.0f, 1.0f, 1.0f};
-	quad.vectors[rv_QBOTTOMLEFT] = (rv_Vectors) {-0.5f, -0.5f, 0.0f, 0.0f, 1.0f};
+
+	quad.vectors[rv_QTOPLEFT] = (rv_Vectors) {
+		a->x,  
+		a->y, 
+		0.0f, 
+		a->u, 
+		a->v
+	};
+
+	quad.vectors[rv_QTOPRIGHT] = (rv_Vectors) {
+		(a->x + a->w),
+		a->y,
+		0.0f,
+		(a->u + a->w),
+		a->v
+	};
+
+	quad.vectors[rv_QBOTTOMRIGHT] = (rv_Vectors) {
+		(a->x + a->w), 
+		(a->y - a->h), 
+		0.0f, 
+		(a->u + a->w), 
+		(a->v + a->h)
+	};
+
+	quad.vectors[rv_QBOTTOMLEFT] = (rv_Vectors) {
+		a->x, 
+		(a->y - a->h),
+		0.0f, 
+		a->u, 
+		(a->v + a->h)
+	};
+
+	return quad;
+}
+
+rv_CrewStatus rv_ACTORS(rv_Crew *c) {
+	c->update = rv_ActorsUpdate;
+	
+	actors = ish_MapNew();
+
+	rv_Actor *myke = calloc(1, sizeof(rv_Actor));
+	*myke = (rv_Actor) {-0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f};
+	
+	rv_Quad quad = rv_ActorQuad(myke);
+
+	glGenBuffers(1, &vbo);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(quad), &quad, GL_STATIC_DRAW);
@@ -123,13 +169,11 @@ rv_CrewStatus rv_ACTORS(rv_Crew *c) {
 		2, 3, 0
 	};
 
-
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
 
 	return rv_CUT;
 }
-
 
 /* The init function/type for the STAGE */
 rv_CrewStatus rv_STAGE(rv_Crew *c) {
@@ -151,7 +195,6 @@ rv_CrewStatus rv_STAGE(rv_Crew *c) {
 	GLuint vao;
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
-
 
 	rv_CrewNew(rv_ACTORS);
 	
