@@ -108,40 +108,42 @@ rv_CrewStatus rv_ActorsUpdate(rv_Crew *c) {
 	return rv_LIVE;
 }
 
-
 rv_Quad rv_ActorQuad(rv_Actor *a) {
 	rv_Quad quad;
 
+	GLfloat top = a->y, bottom = a->y + a->h, left = a->x, right = a->x + a->w;
+	printf("top: %f, bottom: %f, left: %f, right: %f\n", top, bottom, left, right);
+
 	quad.vectors[rv_QTOPLEFT] = (rv_Vectors) {
-		a->x,  
-		a->y, 
+		left,  
+		top, 
 		0.0f, 
-		a->u, 
-		a->v
+		0.0f, 
+		0.0f
 	};
 
 	quad.vectors[rv_QTOPRIGHT] = (rv_Vectors) {
-		(a->x + a->w),
-		a->y,
+		right,
+		top,
 		0.0f,
-		(a->u + a->w),
-		a->v
+		1.0f,
+		0.0f
 	};
 
 	quad.vectors[rv_QBOTTOMRIGHT] = (rv_Vectors) {
-		(a->x + a->w), 
-		(a->y - a->h), 
+		right, 
+		bottom, 
 		0.0f, 
-		(a->u + a->w), 
-		(a->v + a->h)
+		1.0f, 
+		1.0f
 	};
 
 	quad.vectors[rv_QBOTTOMLEFT] = (rv_Vectors) {
-		a->x, 
-		(a->y - a->h),
+		left, 
+		bottom,
 		0.0f, 
-		a->u, 
-		(a->v + a->h)
+		0.0f, 
+		1.0f
 	};
 
 	return quad;
@@ -152,8 +154,9 @@ rv_CrewStatus rv_ACTORS(rv_Crew *c) {
 	
 	actors = ish_MapNew();
 
+//	glOrtho(0, rv_STAGE_WIDTH, rv_STAGE_HEIGHT, 0, -1, 1);
 	rv_Actor *myke = calloc(1, sizeof(rv_Actor));
-	*myke = (rv_Actor) {-0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f};
+	*myke = (rv_Actor) {1, 1, 1, 100, 100, 1.0f, 1.0f};
 	
 	rv_Quad quad = rv_ActorQuad(myke);
 
@@ -197,7 +200,7 @@ rv_CrewStatus rv_STAGE(rv_Crew *c) {
 	glBindVertexArray(vao);
 
 	rv_CrewNew(rv_ACTORS);
-	
+
  	// Create and compile the vertex shader
 	GLuint vertexShader = rv_ShaderLoad("./shaders/default.vert", GL_VERTEX_SHADER);
 
@@ -219,7 +222,11 @@ rv_CrewStatus rv_STAGE(rv_Crew *c) {
 
 	GLint texcoord = glGetAttribLocation(shaderProgram, "texcoord");
 	glEnableVertexAttribArray(texcoord);
+
 	glVertexAttribPointer(texcoord, 2, GL_FLOAT, GL_FALSE, sizeof(rv_Vectors), rv_TEXTURE_OFFSET);
+
+	GLint stageDim = glGetUniformLocation(shaderProgram, "stageDim");
+	glUniform3f(stageDim, rv_STAGE_WIDTH, rv_STAGE_HEIGHT, 1.0f);
 
 	rv_TextureLoad("./myke.png");
 
