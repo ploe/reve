@@ -45,7 +45,7 @@ static rv_CrewStatus UpdateStage(rv_Crew *c) {
 
 	glClearColor(0.f, 1.f, 0.f, 1.f);
 	glClear(GL_COLOR_BUFFER_BIT);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	glDrawArrays(GL_TRIANGLES, 0, 12);
 	SDL_GL_SwapWindow(stage->window);
 
 	return rv_LIVE;
@@ -85,12 +85,15 @@ typedef struct {
 } rv_Vectors;
 
 typedef struct {
-	rv_Vectors vectors[4];
+	rv_Vectors vectors[6];
 } rv_Quad;
 #define rv_QTOPLEFT 0
 #define rv_QTOPRIGHT 1
 #define rv_QBOTTOMRIGHT 2
-#define rv_QBOTTOMLEFT 3
+
+#define rv_POLY2START 3
+#define rv_QBOTTOMLEFT 4
+#define rv_POLY2END 5
 
 #define rv_VERTEX_OFFSET 0
 #define rv_TEXTURE_OFFSET ((const void *) (sizeof(GLfloat) * 3))
@@ -102,7 +105,6 @@ typedef struct {
 
 static ish_Map *actors = NULL;
 static GLuint vbo;
-static GLuint ebo;
 
 rv_CrewStatus rv_ActorsUpdate(rv_Crew *c) {
 	return rv_LIVE;
@@ -137,6 +139,8 @@ rv_Quad rv_ActorQuad(rv_Actor *a) {
 		1.0f
 	};
 
+	quad.vectors[rv_POLY2START] = quad.vectors[rv_QBOTTOMRIGHT];
+
 	quad.vectors[rv_QBOTTOMLEFT] = (rv_Vectors) {
 		left, 
 		bottom,
@@ -144,6 +148,8 @@ rv_Quad rv_ActorQuad(rv_Actor *a) {
 		0.0f, 
 		1.0f
 	};
+
+	quad.vectors[rv_POLY2END] = quad.vectors[rv_QTOPLEFT];
 
 	return quad;
 }
@@ -162,7 +168,7 @@ rv_CrewStatus rv_ACTORS(rv_Crew *c) {
 	*myke = (rv_Actor) {0, 0, 100, 100, 1.0f, 1.0f};
 
 	rv_Actor *vix = rv_ActorNew();
-	*myke = (rv_Actor) {0, 0, 100, 100, 1.0f, 1.0f};
+	*vix = (rv_Actor) {0, 80, 100, 100, 1.0f, 1.0f};
 	
 	rv_Quad quad[2]; 
 	quad[0] = rv_ActorQuad(myke);
@@ -171,17 +177,7 @@ rv_CrewStatus rv_ACTORS(rv_Crew *c) {
 	glGenBuffers(1, &vbo);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(quad), &quad, GL_STATIC_DRAW);
-
-	glGenBuffers(1, &ebo);
-
-	GLuint elements[] = {
-		0, 1, 2,
-		2, 3, 0
-	};
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(quad)*2, &quad, GL_STATIC_DRAW);
 
 	return rv_CUT;
 }
