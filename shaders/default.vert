@@ -3,15 +3,21 @@
 in vec3 position;
 in vec2 texcoord;
 
-uniform vec3 stageDim;
+uniform vec3 iota;
 
 out vec2 Texcoord;
 
+const int w = 0, h = 1;
+const int x = 0, y = 1, z = 2;
+
 void main()
 {
-	float x = 2.0 * (position[0] / stageDim[0]) - 1.0;
-	float y = 1.0 - ((2.0f * position[1] / stageDim[1]));
+	vec3 ndm = vec3(
+		-1.0 + (position[x] * iota[x]),
+		1.0 - (position[y] * iota[y]),
+		-1.0 + (position[z] * iota[z])
+	);
 
 	Texcoord = texcoord;
-	gl_Position = vec4(x, y, 0.5, 1.0);
+	gl_Position = vec4(ndm, 1.0);
 }
