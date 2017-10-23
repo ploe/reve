@@ -172,21 +172,42 @@ static int LuaLoad(lua_State *L) {
 	return 1;
 }
 
-rv_Bool rv_PersistLuaBindings() {
-	rv_LuaBind (
-		"Save", LuaSave,
-		"Load", LuaLoad,
-		rv_NO, rv_NO
-	);
 
-	return rv_YES;
-}
-
-static rv_Bool rv_PersistClearTable(sqlite3 *db, const char *table) {
+static rv_Bool rv_PersistEraseTable(sqlite3 *db, const char *table) {
 	const char *query = "DROP TABLE IF EXISTS '%s'";
 	rv_Text drop = rv_TextNew(query, table);
 	PersistExec(db, drop);
 	rv_TextFree(drop);
+	return rv_YES;
+}
+
+static int LuaErase(lua_State *L) {
+	enum {
+		NAME = 1
+	};
+
+	sqlite3 *db = rv_StageGetSQLite();
+
+	if (lua_isstring(L, NAME)) {
+		const char *table = lua_tostring(L, NAME);
+
+		rv_PersistEraseTable(db, table);
+	}
+
+	lua_pushboolean(L, rv_YES);
+	return 1;
+
+}
+
+
+rv_Bool rv_PersistLuaBindings() {
+	rv_LuaBind (
+		"Save", LuaSave,
+		"Load", LuaLoad,
+		"Erase", LuaErase,
+		rv_NO, rv_NO
+	);
+
 	return rv_YES;
 }
 
