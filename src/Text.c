@@ -26,7 +26,7 @@ rv_Text rv_TextFromFile(const char *path) {
 	size = ftell(file);
 	rewind(file);
 
-	rv_Text buffer = calloc(size, sizeof(char));
+	rv_Text buffer = calloc(size+1, sizeof(char));
 	if (!buffer) rv_Panic(rv_ELOAD, "unable to allocate shader src");
 
 	if(fread(buffer, 1, size, file) != size) rv_Panic(rv_ELOAD, "unable to read file in to memory");
