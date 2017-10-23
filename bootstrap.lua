@@ -1,9 +1,10 @@
-player = rv.Load("player")
-print(player.name, player.age / 2, player.game, player.pi, player.sexy, player.terrible)
+--player = rv.Load("player")
+--print(player.name, player.age / 2, player.game, player.pi, player.sexy, player.terrible)
 
-if player.sexy then print("Yay!") end
-if not player.terrible then print("Woo!") end
+--if player.sexy then print("Yay!") end
+--if not player.terrible then print("Woo!") end
 
+--result = rv.Erase("player")
 
 result = rv.Save("player", {
   name="Mr Puyo",

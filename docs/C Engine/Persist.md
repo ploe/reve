@@ -50,3 +50,8 @@ function is documented [here](/docs/Lua%20API/Persist.md#rvsavename-table).
 Where the Lua `function` `rv.Load` is implemented. The signature of this
 function is what Lua expects for its `cfunction` type. The behaviour of this
 function is documented [here](/docs/Lua%20API/Persist.md#rvloadname).
+
+### static int LuaErase(lua_State \*L)
+Where the Lua `function` rv.Erase is implemented. The signature of this
+function is what Lua expects for its `cfunction` type. The behaviour of this
+function is documented [here](/docs/Lua%20API/Persist.md#rverasename).

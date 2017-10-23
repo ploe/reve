@@ -4,7 +4,7 @@ Persist is the module used for Saving and Loading data.
 
 It is currently backed by `SQLite3` in engine, however you do not
 need to be aware of the schema or have to write any queries. You simply
-drop in your Lua `table` and the data gets automatically marshaled to the
+drop in your Lua `table` and the data gets automatically marshalled to the
 database.
 
 It only marshals `numbers`, `booleans` and `strings`. The other types in Lua
@@ -48,4 +48,13 @@ print(player.name, player.age / 2, player.game, player.pi, player.sexy, player.t
 
 if player.sexy then print("Yay!") end
 if not player.terrible then print("Woo!") end
+```
+
+## rv.Load(name)
+
+Return true if a `table` when a table with `name` was erased. It actually
+returns true regardless, at the moment. But this behaviour may change.
+
+```lua
+result = rv.Erase("player")
 ```
