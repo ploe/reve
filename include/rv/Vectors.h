@@ -11,10 +11,15 @@ typedef struct {
 	rv_Vectors vectors[rv_QUAD_VECTORS_MAX];
 } rv_Quad;
 
+typedef struct {
+	rv_Quad *buffer;
+	unsigned int index;
+	size_t size;
+} rv_Renderer;
 
-rv_Bool rv_RendererInit();
-rv_Bool rv_RendererAdd(rv_Quad quad);
-rv_Bool rv_RendererDraw();
+rv_Renderer *rv_RendererInit();
+rv_Bool rv_RendererAdd(rv_Renderer *r, rv_Quad quad);
+rv_Bool rv_RendererDraw(rv_Renderer *r);
 
 #define rv_QPOLY1START 0
 #define rv_QPOLY1MID 1

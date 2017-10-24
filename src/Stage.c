@@ -35,6 +35,7 @@ static rv_CrewStatus DestroyStage(rv_Crew *c) {
 	return rv_CUT;
 }
 
+static rv_Renderer *r;
 /* Update method for the STAGE - called every frame */
 static rv_CrewStatus UpdateStage(rv_Crew *c) {
 	rv_Stage *stage = (rv_Stage *) c->attr;
@@ -44,7 +45,7 @@ static rv_CrewStatus UpdateStage(rv_Crew *c) {
 		if (e.type == SDL_QUIT) return rv_EXIT;
 	}
 
-	rv_RendererDraw();
+	rv_RendererDraw(r);
 	SDL_GL_SwapWindow(stage->window);
 	return rv_LIVE;
 }
@@ -79,6 +80,7 @@ static rv_Bool WindowInit(rv_Stage *stage) {
 }
 static GLuint vbo;
 static GLuint vao;
+
 /* The init function/type for the STAGE */
 rv_CrewStatus rv_STAGE(rv_Crew *c) {
 	c->tag = "STAGE";
@@ -110,7 +112,7 @@ rv_CrewStatus rv_STAGE(rv_Crew *c) {
 	//rv_TextureAtlas();
 	glBindTexture(GL_TEXTURE_2D, t->texture);
 
-	rv_RendererInit();
+	r = rv_RendererInit();
 
 	rv_Quad quad;
 	quad.vectors[rv_QPOLY1START] = (rv_Vectors) { -0.5f,  0.5f, 0.0f, 0.0f, 0.0f };
@@ -121,7 +123,16 @@ rv_CrewStatus rv_STAGE(rv_Crew *c) {
 	quad.vectors[rv_QPOLY2MID] = (rv_Vectors) { -0.5f, -0.5f, 0.0f, 0.0f, 1.0f};
 	quad.vectors[rv_QPOLY2END] = quad.vectors[rv_QPOLY1START];
 
-	rv_RendererAdd(quad);
+	rv_RendererAdd(r, quad);
+
+	quad.vectors[rv_QPOLY1START] = (rv_Vectors) { -0.25f,  0.25f, 0.0f, 0.0f, 0.0f };
+	quad.vectors[rv_QPOLY1MID] = (rv_Vectors) { 0.25f,  0.25f, 0.0f,  1.0f, 0.0f };
+	quad.vectors[rv_QPOLY1END] = (rv_Vectors) { 0.25f, -0.25f, 0.0f, 1.0f, 1.0f };
+
+	quad.vectors[rv_QPOLY2START] = quad.vectors[rv_QPOLY1END];
+	quad.vectors[rv_QPOLY2MID] = (rv_Vectors) { -0.25f, -0.25f, 0.0f, 0.0f, 1.0f};
+	quad.vectors[rv_QPOLY2END] = quad.vectors[rv_QPOLY1START];
+	rv_RendererAdd(r, quad);
 
 	err = glGetError(); if (err) rv_Panic(-1, "126");
 	rv_CrewNew(rv_PLAYER);
