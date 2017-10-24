@@ -143,7 +143,6 @@ int main(int argc, char *argv[]) {
 
 	// create vertex buffer object
 	GLuint vbo;
-	glGenBuffers(1, &vbo);
 
 	float vertices[] = {
 		// position   red   green blue  tex coords

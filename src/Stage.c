@@ -35,8 +35,6 @@ static rv_CrewStatus DestroyStage(rv_Crew *c) {
 	return rv_CUT;
 }
 
-rv_Tile *tile = NULL;
-
 /* Update method for the STAGE - called every frame */
 static rv_CrewStatus UpdateStage(rv_Crew *c) {
 	rv_Stage *stage = (rv_Stage *) c->attr;
@@ -46,11 +44,8 @@ static rv_CrewStatus UpdateStage(rv_Crew *c) {
 		if (e.type == SDL_QUIT) return rv_EXIT;
 	}
 
-	glClearColor(0.f, 1.f, 0.f, 1.f);
-	glClear(GL_COLOR_BUFFER_BIT);
-	glDrawArrays(GL_TRIANGLES, 0, 12);
+	rv_RendererDraw();
 	SDL_GL_SwapWindow(stage->window);
-
 	return rv_LIVE;
 }
 
@@ -83,6 +78,7 @@ static rv_Bool WindowInit(rv_Stage *stage) {
 	return rv_YES;
 }
 static GLuint vbo;
+static GLuint vao;
 /* The init function/type for the STAGE */
 rv_CrewStatus rv_STAGE(rv_Crew *c) {
 	c->tag = "STAGE";
@@ -100,16 +96,34 @@ rv_CrewStatus rv_STAGE(rv_Crew *c) {
 	stage->sqlite = SQLiteInit("./slot1.db");
 	rv_LuaInit();
 
-	GLuint vao;
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
-	rv_ShadersInit();
+	GLint err = glGetError(); if (err) rv_Panic(-1, "102");
 
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+	rv_ShadersInit();
+	err = glGetError(); if (err) rv_Panic(-1, "108");
 	rv_Texture *t = rv_TextureNew("./myke.png");
-	rv_TextureAtlas();
+	//rv_TextureAtlas();
 	glBindTexture(GL_TEXTURE_2D, t->texture);
 
+	rv_RendererInit();
+
+	rv_Quad quad;
+	quad.vectors[rv_QPOLY1START] = (rv_Vectors) { -0.5f,  0.5f, 0.0f, 0.0f, 0.0f };
+	quad.vectors[rv_QPOLY1MID] = (rv_Vectors) { 0.5f,  0.5f, 0.0f,  1.0f, 0.0f };
+	quad.vectors[rv_QPOLY1END] = (rv_Vectors) { 0.5f, -0.5f, 0.0f, 1.0f, 1.0f };
+
+	quad.vectors[rv_QPOLY2START] = quad.vectors[rv_QPOLY1END];
+	quad.vectors[rv_QPOLY2MID] = (rv_Vectors) { -0.5f, -0.5f, 0.0f, 0.0f, 1.0f};
+	quad.vectors[rv_QPOLY2END] = quad.vectors[rv_QPOLY1START];
+
+	rv_RendererAdd(quad);
+
+	err = glGetError(); if (err) rv_Panic(-1, "126");
 	rv_CrewNew(rv_PLAYER);
 
 	return rv_LIVE;
