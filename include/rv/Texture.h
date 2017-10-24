@@ -3,9 +3,14 @@
 
 typedef struct {
 	unsigned int rc;
-	SDL_Texture *texture;
+	GLuint texture, x, y, w, h;
 } rv_Texture;
 
-void *rv_TextureNew(char *src, SDL_Renderer *renderer);
+typedef struct {
+	GLuint fb, texture, w, h;
+} rv_Atlas;
+
+rv_Texture *rv_TextureNew(const char *path);
+rv_Atlas rv_TextureAtlas();
 
 #endif

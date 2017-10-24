@@ -5,10 +5,10 @@
 The module `Text` is described in the header [rv/Text.h](/include/rv/Text.h) and
 implemented in [Text.c](/src/Text.c)
 
-It is a `typedef` of a `const char *` and the methods are to simplify the
+It is a `typedef` of a `char *` and the methods are to simplify the
 dynamic allocation and destruction of them.
 
-The impetus to wrapping this up was to make it clear which `const char *` are
+The impetus to wrapping this up was to make it clear which `char *` are
 dynamically allocated, and therefore need freeing and which aren't.
 
 `const char *` is used when this is ambiguous or hardcoded.
@@ -40,6 +40,10 @@ switch (type) {
   break;
 }
 ```
+
+### rv_Text rv_TextFromFile(const char \*path)
+
+Create a new rv_Text from the contents of the file at `path`.
 
 ### rv_Text rv_TextFree(rv_Text s)
 

@@ -7,7 +7,6 @@ static rv_CrewStatus rv_KEYBOARD(rv_Crew *c) {
 	c->update = rv_KEYBOARD;
 	static const Uint8 *key;
 	key = SDL_GetKeyboardState(NULL);
-
 	rv_Player.up = key[SDL_SCANCODE_UP];
 	rv_Player.down = key[SDL_SCANCODE_DOWN];
 	rv_Player.left = key[SDL_SCANCODE_LEFT];

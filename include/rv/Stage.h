@@ -4,6 +4,7 @@
 /* Stage attributes, this is what attr gets set to on the STAGE */
 typedef struct {
 	SDL_Window *window;
+	SDL_GLContext *context;
 	SDL_Surface *surface;
 	SDL_Renderer *renderer;
 	sqlite3 *sqlite;

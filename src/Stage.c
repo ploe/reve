@@ -22,10 +22,13 @@ sqlite3 *rv_StageGetSQLite() {
 /* Destroy function for the STAGE - the return value isn't important */
 static rv_CrewStatus DestroyStage(rv_Crew *c) {
 	rv_Stage *stage = (rv_Stage *) c->attr;
+
+	rv_ShadersDestroy();
+
 	rv_LuaDestroy();
 	sqlite3_close(stage->sqlite);
 
-	SDL_DestroyRenderer(stage->renderer);
+	SDL_GL_DeleteContext(stage->context);
 	SDL_DestroyWindow(stage->window);
 	SDL_Quit();
 
@@ -43,26 +46,43 @@ static rv_CrewStatus UpdateStage(rv_Crew *c) {
 		if (e.type == SDL_QUIT) return rv_EXIT;
 	}
 
-	SDL_RenderClear(stage->renderer);
-	rv_TileDraw(tile, stage);
-	SDL_RenderPresent(stage->renderer);
-
+	glClearColor(0.f, 1.f, 0.f, 1.f);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glDrawArrays(GL_TRIANGLES, 0, 12);
+	SDL_GL_SwapWindow(stage->window);
 
 	return rv_LIVE;
 }
 
-SDL_Texture *rv_LoadTexture(char *src, SDL_Renderer *renderer) {
-	SDL_Surface *surface = IMG_Load(src);
-	if (!surface) rv_Panic(-1, IMG_GetError());
+static rv_Bool WindowInit(rv_Stage *stage) {
+	if (SDL_Init( SDL_INIT_VIDEO ) < 0) rv_Panic(rv_EOSTAGE_INIT, "rv_STAGE: SDL_Init Failed");
 
-	SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-	if (!texture) rv_Panic(-1, SDL_GetError());
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
-	SDL_FreeSurface(surface);
+	stage->window = SDL_CreateWindow("reve", 0, 0, rv_STAGE_WIDTH, rv_STAGE_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 
-	return texture;
+	if (!stage->window)  rv_Panic(rv_EGL,SDL_GetError());
+
+	stage->context = SDL_GL_CreateContext(stage->window);
+
+	if (!stage->context) rv_Panic(rv_EGL,SDL_GetError());
+
+	if (SDL_GL_SetSwapInterval(1) < 0) rv_Panic(rv_EGL,SDL_GetError());
+
+	glewExperimental = GL_TRUE;
+
+	glewInit();
+	GLenum error;
+	for (error = glGetError(); error != GL_NO_ERROR; error = glGetError()) {
+		if (error != GL_INVALID_ENUM) rv_Panic(rv_EGL, "error on glew init");
+	}
+
+	return rv_YES;
 }
-
+static GLuint vbo;
 /* The init function/type for the STAGE */
 rv_CrewStatus rv_STAGE(rv_Crew *c) {
 	c->tag = "STAGE";
@@ -70,27 +90,27 @@ rv_CrewStatus rv_STAGE(rv_Crew *c) {
 	c->destroy = DestroyStage;
 	c->update = UpdateStage;
 
-	if (SDL_Init( SDL_INIT_VIDEO ) < 0) rv_Panic(rv_EOSTAGE_INIT, "rv_STAGE: SDL_Init Failed");
-
 	stage = calloc(1, sizeof(rv_Stage));
 	if (!stage) rv_Panic(rv_EOSTAGE_INIT, "rv_STAGE: Could not allocate stage struct.");
 	c->attr = stage;
 
-	stage->window = SDL_CreateWindow("reve", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 360, SDL_WINDOW_SHOWN);
-	if (!stage->window) rv_Panic(rv_EOSTAGE_INIT, "rv_STAGE: Failed to create STAGE window.");
-
-	stage->renderer = SDL_CreateRenderer(stage->window, -1, SDL_RENDERER_ACCELERATED);
-	SDL_SetRenderDrawColor(stage->renderer, 255, 0, 128, 255);
-
-	IMG_Init(IMG_INIT_PNG);
-	SDL_Rect clip = {0, 0, 100, 100};
+	WindowInit(stage);
+	ilInit();
 
 	stage->sqlite = SQLiteInit("./slot1.db");
 	rv_LuaInit();
 
-	tile = rv_TileNew("test", "overworld.png", clip, stage);
+	GLuint vao;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	rv_ShadersInit();
+
+	rv_Texture *t = rv_TextureNew("./myke.png");
+	rv_TextureAtlas();
+	glBindTexture(GL_TEXTURE_2D, t->texture);
 
 	rv_CrewNew(rv_PLAYER);
 
-	return 0;
+	return rv_LIVE;
 }

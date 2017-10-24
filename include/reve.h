@@ -8,12 +8,17 @@
 
 #include "murp.h"
 #include "hashish.h"
+#define GLEW_STATIC
+#include <GL/glew.h>
+#include <IL/il.h>
 
 #ifdef __linux
 #include <SDL2/SDL.h>
+#include <SDL_opengl.h>
 #include <SDL2/SDL_image.h>
 #elif __APPLE__
 #include <SDL.h>
+#include <SDL_opengl.h>
 #include <SDL_image.h>
 #endif
 
@@ -31,6 +36,9 @@ enum {
 	rv_EOALLOC,
 	rv_EOCREW_ALLOC,
 	rv_EOSTAGE_INIT,
+	rv_ELOAD,
+	rv_ETEXTURE,
+	rv_EGL,
 	rv_ELUA,
 	rv_ESQL,
 	_rv_ENDOFERRORS
@@ -48,6 +56,9 @@ enum {
 
 void rv_Panic(int i, const char *prompt);
 
+#define rv_STAGE_WIDTH 1080
+#define rv_STAGE_HEIGHT 720
+
 //Our libs
 #include "rv/Crew.h"
 #include "rv/Player.h"
@@ -57,5 +68,7 @@ void rv_Panic(int i, const char *prompt);
 #include "rv/Persist.h"
 #include "rv/Text.h"
 #include "rv/Lua.h"
+#include "rv/Shaders.h"
+#include "rv/Vectors.h"
 
 #endif

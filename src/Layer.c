@@ -30,7 +30,7 @@ rv_Tile *rv_TileNew(char *name, char *texture, SDL_Rect clip, rv_Stage *stage) {
 		if (!t) return NULL;
 
 		t->rc = 1;
-		t->texture = rv_TextureNew(texture, stage->renderer);
+//		t->texture = rv_TextureNew(texture, stage->renderer);
 		t->clip = clip;
 
 		ish_MapSetWithAllocators(tiles, name, t, TileGet, TileDrop);
