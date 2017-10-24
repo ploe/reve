@@ -232,7 +232,9 @@ rv_CrewStatus rv_STAGE(rv_Crew *c) {
 	GLint iota = glGetUniformLocation(shaderProgram, "iota");
 	glUniform3f(iota, 2.0 / rv_STAGE_WIDTH, 2.0 / rv_STAGE_HEIGHT, 1.0 / rv_STAGE_HEIGHT);
 
-	rv_TextureLoad("./myke.png");
+	rv_Texture *t = rv_TextureNew("./myke.png");
+	rv_TextureAtlas();
+	glBindTexture(GL_TEXTURE_2D, t->texture);
 
 	rv_CrewNew(rv_PLAYER);
 
