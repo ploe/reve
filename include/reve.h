@@ -69,6 +69,6 @@ void rv_Panic(int i, const char *prompt);
 #include "rv/Text.h"
 #include "rv/Lua.h"
 #include "rv/Shaders.h"
-#include "rv/Vectors.h"
+#include "rv/Renderer.h"
 
 #endif
