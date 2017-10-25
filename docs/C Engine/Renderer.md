@@ -1,10 +1,39 @@
 # Renderer
 
-Renderer is the module where the type `rv_Renderer` is the module used for rendering `rv_Quad` to the `OpenGL` context.
+Renderer is the module where the type `rv_Renderer` is defined. This module is used for rendering `rv_Quad` to the `OpenGL` context.
+
+An `rv_Quad` is two textured polygons that you want to draw on-screen to represent something in-game.
 
 It is defined in
 [rv/Renderer.h](/include/rv/Renderer.h) and implemented in
 [Renderer.c](/src/Renderer.c).
+
+## Type
+
+```c
+typedef struct {
+	rv_Quad *buffer;
+	unsigned int index;
+	size_t size;
+	GLuint vbo;
+} rv_Renderer;
+```
+
+### rv_Quad \*buffer
+
+An array of quads that we want to the `rv_Renderer` to draw to the OpenGL context.
+
+### unsigned int index
+
+Where in `buffer` to add the the new `rv_Quad`.
+
+### size_t size
+
+The current `size` of `buffer`.
+
+### GLuint vbo
+
+The Vertex Buffer Object associated with this `rv_Renderer` in OpenGL.
 
 ## Methods
 
@@ -15,6 +44,10 @@ Allocate a new `rv_Renderer` with a `buffer` and `size` set to `size`.
 ```c
 r = rv_RendererNew(128);
 ```
+
+### rv_Renderer \*rv_RendererFree(rv_Renderer \*r);
+
+Frees the `vbo`, `buffer` and `r` and returns `NULL`.
 
 ### rv_Bool rv_RendererAdd(rv_Renderer \*r, rv_Quad quad)
 

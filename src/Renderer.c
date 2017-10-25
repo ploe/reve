@@ -35,3 +35,13 @@ rv_Bool rv_RendererDraw(rv_Renderer *r) {
 
 	return rv_YES;
 }
+
+rv_Renderer *rv_RendererFree(rv_Renderer *r) {
+	if (r) {
+		glDeleteBuffers(1, r->vbo);
+		free(r->buffer);
+		free(r);
+	}
+
+	return NULL;
+}

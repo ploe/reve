@@ -19,6 +19,7 @@ typedef struct {
 } rv_Renderer;
 
 rv_Renderer *rv_RendererNew(size_t size);
+rv_Renderer *rv_RendererFree(rv_Renderer *r);
 rv_Bool rv_RendererAdd(rv_Renderer *r, rv_Quad quad);
 rv_Bool rv_RendererDraw(rv_Renderer *r);
 
