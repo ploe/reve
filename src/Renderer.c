@@ -1,6 +1,6 @@
 #include "reve.h"
 
-rv_Renderer *rv_RendererInit(size_t size) {
+rv_Renderer *rv_RendererNew(size_t size) {
 	rv_Renderer *r = calloc(1, sizeof(rv_Renderer));
 	if (!r) rv_Panic(-1, "renderer not allocated");
 	r->index = 0;

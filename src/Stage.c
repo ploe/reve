@@ -103,7 +103,7 @@ rv_CrewStatus rv_STAGE(rv_Crew *c) {
 
 	GLint err = glGetError(); if (err) rv_Panic(-1, "102");
 
-	r = rv_RendererInit(128);
+	r = rv_RendererNew(128);
 
 	rv_ShadersInit();
 	err = glGetError(); if (err) rv_Panic(-1, "108");
