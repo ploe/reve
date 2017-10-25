@@ -40,6 +40,7 @@ rv_Bool rv_ShadersDestroy() {
 	glDeleteShader(fragmentShader);
     	glDeleteShader(vertexShader);
 
+	return rv_YES;
 }
 
 GLuint rv_ShaderLoad(const char *path, GLenum type) {
