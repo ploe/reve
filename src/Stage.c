@@ -19,12 +19,14 @@ sqlite3 *rv_StageGetSQLite() {
 	return stage->sqlite;
 }
 
-/* Destroy function for the STAGE - the return value isn't important */
-static rv_CrewStatus DestroyStage(rv_Crew *c) {
+static rv_Renderer *r;
+
+static rv_CrewStatus StageDestroy(rv_Crew *c) {
 	rv_Stage *stage = (rv_Stage *) c->attr;
 
+	rv_RendererFree(r);
+	
 	rv_ShadersDestroy();
-
 	rv_LuaDestroy();
 	sqlite3_close(stage->sqlite);
 
@@ -35,11 +37,9 @@ static rv_CrewStatus DestroyStage(rv_Crew *c) {
 	return rv_CUT;
 }
 
-static rv_Renderer *r;
-/* Update method for the STAGE - called every frame */
-
 const int rv_FPS = 1000 / 60;
 static Uint32 start = 0;
+
 static rv_CrewStatus UpdateStage(rv_Crew *c) {
 	rv_Stage *stage = (rv_Stage *) c->attr;
 
@@ -101,14 +101,14 @@ static rv_Bool WindowInit(rv_Stage *stage) {
 
 	return rv_YES;
 }
-static GLuint vbo;
+
 static GLuint vao;
 
 /* The init function/type for the STAGE */
 rv_CrewStatus rv_STAGE(rv_Crew *c) {
 	c->tag = "STAGE";
 	c->type = rv_STAGE;
-	c->destroy = DestroyStage;
+	c->destroy = StageDestroy;
 	c->update = UpdateStage;
 
 	stage = calloc(1, sizeof(rv_Stage));
