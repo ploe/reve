@@ -103,16 +103,13 @@ rv_CrewStatus rv_STAGE(rv_Crew *c) {
 
 	GLint err = glGetError(); if (err) rv_Panic(-1, "102");
 
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	r = rv_RendererInit(128);
 
 	rv_ShadersInit();
 	err = glGetError(); if (err) rv_Panic(-1, "108");
 	rv_Texture *t = rv_TextureNew("./myke.png");
-	//rv_TextureAtlas();
 	glBindTexture(GL_TEXTURE_2D, t->texture);
 
-	r = rv_RendererInit();
 
 	rv_Quad quad;
 	quad.vectors[rv_QPOLY1START] = (rv_Vectors) { -0.5f,  0.5f, 0.0f, 0.0f, 0.0f };

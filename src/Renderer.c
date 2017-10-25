@@ -1,10 +1,13 @@
 #include "reve.h"
 
-rv_Renderer *rv_RendererInit() {
+rv_Renderer *rv_RendererInit(size_t size) {
 	rv_Renderer *r = calloc(1, sizeof(rv_Renderer));
 	if (!r) rv_Panic(-1, "renderer not allocated");
 	r->index = 0;
-	r->size = 128;
+	r->size = size;
+
+	glGenBuffers(1, &r->vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, r->vbo);
 	
 	r->buffer = calloc(r->size, sizeof(rv_Quad));
 	if (!r->buffer) rv_Panic(-1, "renderer buffer not allocated");
@@ -23,6 +26,7 @@ static void VectorsPrint(rv_Vectors *v) {
 }
 
 rv_Bool rv_RendererDraw(rv_Renderer *r) {
+	glBindBuffer(GL_ARRAY_BUFFER, r->vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(rv_Quad) * r->index, r->buffer, GL_STATIC_DRAW);
 
 	glClearColor(0.f, 1.f, 0.f, 1.f);
