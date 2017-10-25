@@ -110,7 +110,6 @@ rv_CrewStatus rv_STAGE(rv_Crew *c) {
 	rv_Texture *t = rv_TextureNew("./myke.png");
 	glBindTexture(GL_TEXTURE_2D, t->texture);
 
-
 	rv_Quad quad;
 	quad.vectors[rv_QPOLY1START] = (rv_Vectors) { -0.5f,  0.5f, 0.0f, 0.0f, 0.0f };
 	quad.vectors[rv_QPOLY1MID] = (rv_Vectors) { 0.5f,  0.5f, 0.0f,  1.0f, 0.0f };
