@@ -37,6 +37,9 @@ static rv_CrewStatus DestroyStage(rv_Crew *c) {
 
 static rv_Renderer *r;
 /* Update method for the STAGE - called every frame */
+
+const int rv_FPS = 1000 / 60;
+static Uint32 start = 0;
 static rv_CrewStatus UpdateStage(rv_Crew *c) {
 	rv_Stage *stage = (rv_Stage *) c->attr;
 
@@ -45,8 +48,27 @@ static rv_CrewStatus UpdateStage(rv_Crew *c) {
 		if (e.type == SDL_QUIT) return rv_EXIT;
 	}
 
+	float i;
+	for (i = 0; i < 10000; i++) {
+		float offset = (i / 10000);
+		rv_Quad quad;
+		quad.vectors[rv_QPOLY1START] = (rv_Vectors) { -offset, offset, 0.0f, 0.0f, 0.0f };
+		quad.vectors[rv_QPOLY1MID] = (rv_Vectors) { offset,  offset, 0.0f,  1.0f, 0.0f };
+		quad.vectors[rv_QPOLY1END] = (rv_Vectors) { offset, -offset, 0.0f, 1.0f, 1.0f };
+
+		quad.vectors[rv_QPOLY2START] = quad.vectors[rv_QPOLY1END];
+		quad.vectors[rv_QPOLY2MID] = (rv_Vectors) { -offset, -offset, 0.0f, 0.0f, 1.0f};
+		quad.vectors[rv_QPOLY2END] = quad.vectors[rv_QPOLY1START];
+		rv_RendererAdd(r, quad);
+	}
+
 	rv_RendererDraw(r);
+
+	if (rv_FPS > (SDL_GetTicks() - start))
+		SDL_Delay(rv_FPS - (SDL_GetTicks() - start));
+
 	SDL_GL_SwapWindow(stage->window);
+	start = SDL_GetTicks();
 	return rv_LIVE;
 }
 
@@ -109,26 +131,6 @@ rv_CrewStatus rv_STAGE(rv_Crew *c) {
 	err = glGetError(); if (err) rv_Panic(-1, "108");
 	rv_Texture *t = rv_TextureNew("./myke.png");
 	glBindTexture(GL_TEXTURE_2D, t->texture);
-
-	rv_Quad quad;
-	quad.vectors[rv_QPOLY1START] = (rv_Vectors) { -0.5f,  0.5f, 0.0f, 0.0f, 0.0f };
-	quad.vectors[rv_QPOLY1MID] = (rv_Vectors) { 0.5f,  0.5f, 0.0f,  1.0f, 0.0f };
-	quad.vectors[rv_QPOLY1END] = (rv_Vectors) { 0.5f, -0.5f, 0.0f, 1.0f, 1.0f };
-
-	quad.vectors[rv_QPOLY2START] = quad.vectors[rv_QPOLY1END];
-	quad.vectors[rv_QPOLY2MID] = (rv_Vectors) { -0.5f, -0.5f, 0.0f, 0.0f, 1.0f};
-	quad.vectors[rv_QPOLY2END] = quad.vectors[rv_QPOLY1START];
-
-	rv_RendererAdd(r, quad);
-
-	quad.vectors[rv_QPOLY1START] = (rv_Vectors) { -0.25f,  0.25f, 0.0f, 0.0f, 0.0f };
-	quad.vectors[rv_QPOLY1MID] = (rv_Vectors) { 0.25f,  0.25f, 0.0f,  1.0f, 0.0f };
-	quad.vectors[rv_QPOLY1END] = (rv_Vectors) { 0.25f, -0.25f, 0.0f, 1.0f, 1.0f };
-
-	quad.vectors[rv_QPOLY2START] = quad.vectors[rv_QPOLY1END];
-	quad.vectors[rv_QPOLY2MID] = (rv_Vectors) { -0.25f, -0.25f, 0.0f, 0.0f, 1.0f};
-	quad.vectors[rv_QPOLY2END] = quad.vectors[rv_QPOLY1START];
-	rv_RendererAdd(r, quad);
 
 	err = glGetError(); if (err) rv_Panic(-1, "126");
 	rv_CrewNew(rv_PLAYER);

@@ -1,5 +1,5 @@
 compile = cc -g -O2 -I./libs/hashish -I./libs/murp -I./include ./libs/hashish/hashish.o ./libs/murp/murp.o
-src = src/Crew.c src/Player.c src/Texture.c src/Layer.c src/Shaders.c src/Stage.c src/Utils.c src/main.c src/Persist.c src/Text.c src/Lua.c src/Renderer.c
+src = src/Crew.c src/Player.c src/Texture.c src/Shaders.c src/Stage.c src/Utils.c src/main.c src/Persist.c src/Text.c src/Lua.c src/Renderer.c
 SDL_FLAGS := `pkg-config sdl2 SDL2_image --cflags --libs`
 GL_FLAGS := `pkg-config ILU glew --cflags --libs`
 LUA_FLAGS := `pkg-config lua-5.2 --cflags --libs`

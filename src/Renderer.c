@@ -15,6 +15,13 @@ rv_Renderer *rv_RendererNew(size_t size) {
 }
 
 rv_Bool rv_RendererAdd(rv_Renderer *r, rv_Quad quad) {
+	if (r->index >= r->size) {
+		r->size *= 2;
+		rv_Quad *tmp = realloc(r->buffer, sizeof(rv_Quad) * r->size);
+		if (!tmp) rv_Panic(-1, "rv_Quad buffer could not be reallocated");
+		r->buffer = tmp;
+	}
+
 	r->buffer[r->index] = quad;
 	r->index++;
 
@@ -32,13 +39,14 @@ rv_Bool rv_RendererDraw(rv_Renderer *r) {
 	glClearColor(0.f, 1.f, 0.f, 1.f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glDrawArrays(GL_TRIANGLES, 0, 6 * r->index);
+	r->index = 0;
 
 	return rv_YES;
 }
 
 rv_Renderer *rv_RendererFree(rv_Renderer *r) {
 	if (r) {
-		glDeleteBuffers(1, r->vbo);
+		glDeleteBuffers(1, &r->vbo);
 		free(r->buffer);
 		free(r);
 	}

@@ -64,7 +64,6 @@ void rv_Panic(int i, const char *prompt);
 #include "rv/Player.h"
 #include "rv/Stage.h"
 #include "rv/Texture.h"
-#include "rv/Layer.h"
 #include "rv/Persist.h"
 #include "rv/Text.h"
 #include "rv/Lua.h"
