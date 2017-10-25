@@ -49,8 +49,8 @@ static rv_CrewStatus UpdateStage(rv_Crew *c) {
 	}
 
 	float i;
-	for (i = 0; i < 10000; i++) {
-		float offset = (i / 10000);
+	for (i = 0; i < 512; i++) {
+		float offset = 1 - (i / 512);
 		rv_Quad quad;
 		quad.vectors[rv_QPOLY1START] = (rv_Vectors) { -offset, offset, 0.0f, 0.0f, 0.0f };
 		quad.vectors[rv_QPOLY1MID] = (rv_Vectors) { offset,  offset, 0.0f,  1.0f, 0.0f };
@@ -69,6 +69,7 @@ static rv_CrewStatus UpdateStage(rv_Crew *c) {
 
 	SDL_GL_SwapWindow(stage->window);
 	start = SDL_GetTicks();
+
 	return rv_LIVE;
 }
 
