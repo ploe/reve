@@ -50,7 +50,7 @@ rv_Texture *rv_TextureNew(const char *path) {
 
 	t->rc = 1;
 	if (!textures) textures = ish_MapNew();
-	ish_MapSet(textures, path, t);
+	ish_MapSet(textures, (char *) path, t);
 
 	return t;
 }
