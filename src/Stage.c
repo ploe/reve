@@ -21,6 +21,10 @@ sqlite3 *rv_StageGetSQLite() {
 
 static rv_Renderer *r;
 
+rv_Renderer *rv_StageGetRenderer() {
+	return r;
+}
+
 static rv_CrewStatus StageDestroy(rv_Crew *c) {
 	rv_Stage *stage = (rv_Stage *) c->attr;
 
@@ -49,8 +53,8 @@ static rv_CrewStatus UpdateStage(rv_Crew *c) {
 	}
 
 	float i;
-	for (i = 0; i < 512; i++) {
-		float offset = 1 - (i / 512);
+	for (i = 0; i < 2048; i++) {
+		float offset = 1 - (i / 2048);
 		rv_Quad quad;
 		quad.vectors[rv_QPOLY1START] = (rv_Vectors) { -offset, offset, 0.0f, 0.0f, 0.0f };
 		quad.vectors[rv_QPOLY1MID] = (rv_Vectors) { offset,  offset, 0.0f,  1.0f, 0.0f };
